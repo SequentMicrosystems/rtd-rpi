@@ -4,4 +4,4 @@ Examples to control [MEGA-RTD Stackable Card for Raspberry Pi](https://sequentmi
 
 This example are made for guidance only.
 
-In order to work, you need to install the "rtd" command. follow the instructions here: https://github.com/SequentMicrosystems/rtd-rpi/blob/master/README.md
+In order to work, you need to install the "rtd" command. follow the instructions: https://github.com/SequentMicrosystems/rtd-rpi/blob/master/README.md
