@@ -4,7 +4,7 @@
 
 This is the command to control [MEGA-RTD Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/index.php?route=product/product&path=33&product_id=66)
 
-[rtd](readmeres/rtd.jpg)
+![rtd](readmeres/rtd.jpg)
 
 Don't forget to enable I2C communication:
 ```bash
