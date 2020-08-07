@@ -1,6 +1,6 @@
 # librtd
 
-This is the python library to control the [rtd](https://sequentmicrosystems.com/index.php?route=product/product&path=33&product_id=66) 4/8 Channel RTD Data Acquisition for Raspberry Pi.
+This is the python library to control the [![rtd](readmeres/sequent.jpg)](https://sequentmicrosystems.com/index.php?route=product/product&path=33&product_id=66) 4/8 Channel RTD Data Acquisition for Raspberry Pi.
 
 ## Install
 
