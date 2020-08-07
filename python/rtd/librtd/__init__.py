@@ -14,14 +14,13 @@ def get(stack, channel):
 		return
     
 	if channel < 1 or channel > 8:
-		raise ValueError('Invalid relay number')
+		raise ValueError('Invalid channel number')
 		return
     
-  buff = [0, 0, 0, 0]  
-  try:
-    buff = bus.read_i2c_block_data(DEVICE_ADDRESS+stack, RTD_TEMPERATURE_ADD + 4 * (channel - 1));
-    val = struct.unpack('f', buff)
-  except Exception as e:
-    val = -1  
-  return val   
+	try:
+		buff = bus.read_i2c_block_data(DEVICE_ADDRESS+stack, RTD_TEMPERATURE_ADD + (4 * (channel - 1)), 4);
+		val = struct.unpack('f', bytearray(buff))
+	except Exception as e:
+		val[0] = -273.15  
+	return val[0]   
 		
