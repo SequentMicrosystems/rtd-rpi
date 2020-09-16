@@ -1,5 +1,5 @@
-#ifndef RELAY8_H_
-#define RELAY8_H_
+#ifndef RTD_H_
+#define RTD_H_
 
 #include <stdint.h>
 

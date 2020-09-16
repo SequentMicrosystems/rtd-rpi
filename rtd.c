@@ -24,6 +24,8 @@
 #define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
 #define CMD_ARRAY_SIZE	5
 
+void usage(void);
+
 static void doHelp(int argc, char *argv[]);
 const CliCmdType CMD_HELP =
 	{
@@ -31,9 +33,9 @@ const CliCmdType CMD_HELP =
 		1,
 		&doHelp,
 		"\t-h          Display the list of command options or one command option details\n",
-		"\tUsage:      8relay -h    Display command options list\n",
-		"\tUsage:      8relay -h <param>   Display help for <param> command option\n",
-		"\tExample:    8relay -h write    Display help for \"write\" command option\n"};
+		"\tUsage:      rtd -h    Display command options list\n",
+		"\tUsage:      rtd -h <param>   Display help for <param> command option\n",
+		"\tExample:    rtd -h write    Display help for \"write\" command option\n"};
 
 static void doVersion(int argc, char *argv[]);
 const CliCmdType CMD_VERSION =
@@ -41,10 +43,10 @@ const CliCmdType CMD_VERSION =
 	"-v",
 	1,
 	&doVersion,
-	"\t-v              Display the version number\n",
-	"\tUsage:          8relay -v\n",
+	"\t-v          Display the version number\n",
+	"\tUsage:      rtd -v\n",
 	"",
-	"\tExample:        8relay -v  Display the version number\n"};
+	"\tExample:    rtd -v  Display the version number\n"};
 
 static void doWarranty(int argc, char* argv[]);
 const CliCmdType CMD_WAR =
@@ -52,10 +54,10 @@ const CliCmdType CMD_WAR =
 	"-warranty",
 	1,
 	&doWarranty,
-	"\t-warranty       Display the warranty\n",
-	"\tUsage:          8relay -warranty\n",
+	"\t-warranty   Display the warranty\n",
+	"\tUsage:      rtd -warranty\n",
 	"",
-	"\tExample:        8relay -warranty  Display the warranty text\n"};
+	"\tExample:    rtd -warranty  Display the warranty text\n"};
 
 //static void doList(int argc, char *argv[]);
 //const CliCmdType CMD_LIST =
@@ -63,10 +65,10 @@ const CliCmdType CMD_WAR =
 //	"-list",
 //	1,
 //	&doList,
-//	"\t-list:       List all 8relay boards connected,\n\treturn       nr of boards and stack level for every board\n",
-//	"\tUsage:       8relay -list\n",
+//	"\t-list:       List all rtd boards connected,\n\treturn       nr of boards and stack level for every board\n",
+//	"\tUsage:       rtd -list\n",
 //	"",
-//	"\tExample:     8relay -list display: 1,0 \n"};
+//	"\tExample:     rtd -list display: 1,0 \n"};
 
 static void doRtdRead(int argc, char *argv[]);
 const CliCmdType CMD_READ =
@@ -74,32 +76,24 @@ const CliCmdType CMD_READ =
 		"read",
 		2,
 		&doRtdRead,
-		"\tread:        Read rtd channel temperature\n",
-		"\tUsage:       rtd <id> read <channel>\n",
+		"\tread:       Read rtd channel temperature\n",
+		"\tUsage:      rtd <id> read <channel>\n",
 		"",
-		"\tExample:     rtd 0 read 2; Read the temperature on channel #2 on Board #0\n"};
+		"\tExample:    rtd 0 read 2; Read the temperature on channel #2 on Board #0\n"};
 
-static void doTest(int argc, char* argv[]);
-const CliCmdType CMD_TEST =
+static void doBoard(int argc, char* argv[]);
+const CliCmdType CMD_BOARD =
 {
-	"test",
+	"board",
 	2,
-	&doTest,
-	"\ttest:        Turn ON and OFF the relays until press a key\n",
+	&doBoard,
+	"\tboard:      Display board firmware version\n",
+	"\tUsage:      rtd <id> board\n",
 	"",
-	"\tUsage:       8relay <id> test\n",
-	"\tExample:     8relay 0 test\n"};
+	"\tExample:    rtd 0 board\n"};
 
 CliCmdType gCmdArray[CMD_ARRAY_SIZE];
 
-char *usage = "Usage:	 rtd -h <command>\n"
-	"         rtd -v\n"
-	"         rtd -warranty\n"
-	"         rtd -list\n"
-	"         rtd <id> read <channel>\n"
-	"         rtd <id> test\n"
-	"Where: <id> = Board level id = 0..7\n"
-	"Type rtd -h <command> for more help"; // No trailing newline needed here.
 
 char *warranty =
 	"	       Copyright (c) 2016-2020 Sequent Microsystems\n"
@@ -229,12 +223,12 @@ static void doHelp(int argc, char *argv[])
 		if (CMD_ARRAY_SIZE == i)
 		{
 			printf("Option \"%s\" not found\n", argv[2]);
-			printf("%s: %s\n", argv[0], usage);
+			usage();
 		}
 	}
 	else
 	{
-		printf("%s: %s\n", argv[0], usage);
+		usage();
 	}
 }
 
@@ -242,10 +236,10 @@ static void doVersion(int argc, char *argv[])
 {
 	UNUSED(argc);
 	UNUSED(argv);
-	printf("8relay v%d.%d.%d Copyright (c) 2016 - 2020 Sequent Microsystems\n",
+	printf("rtd v%d.%d.%d Copyright (c) 2016 - 2020 Sequent Microsystems\n",
 	VERSION_BASE, VERSION_MAJOR, VERSION_MINOR);
 	printf("\nThis is free software with ABSOLUTELY NO WARRANTY.\n");
-	printf("For details type: 8relay -warranty\n");
+	printf("For details type: rtd -warranty\n");
 
 }
 
@@ -282,12 +276,13 @@ static void doVersion(int argc, char *argv[])
 /* 
  * Self test for production
  */
-static void doTest(int argc, char* argv[])
+static void doBoard(int argc, char* argv[])
 {
 	int dev = 0;
-//	int i = 0;
-//	int retry = 0;
-	FILE* file = NULL;
+	u8 buff[2] =
+	{
+		0,
+		0};
 
 	dev = doBoardInit(atoi(argv[1]));
 	if (dev <= 0)
@@ -295,123 +290,40 @@ static void doTest(int argc, char* argv[])
 		exit(1);
 	}
 
-	if (argc == 4)
+	if (argc == 3)
 	{
-		file = fopen(argv[3], "w");
-		if (!file)
+		if (FAIL == i2cMem8Read(dev, REVISION_MAJOR_MEM_ADD, buff, 2))
 		{
-			printf("Fail to open result file\n");
-			//return -1;
+			exit(1);
 		}
+		printf("Mega RTD firmware version %d.%02d\n", (int)buff[0], (int)buff[1]);
 	}
-	printf("Comming soon....\n");
-
-////relay test****************************
-//	if (strcasecmp(argv[2], "test") == 0)
-//	{
-//		relVal = 0;
-//		printf(
-//			"Are all relays and LEDs turning on and off in sequence?\nPress y for Yes or any key for No....");
-//		startThread();
-//		while (relayResult == 0)
-//		{
-//			for (i = 0; i < 8; i++)
-//			{
-//				relayResult = checkThreadResult();
-//				if (relayResult != 0)
-//				{
-//					break;
-//				}
-//				valR = 0;
-//				relVal = (u8)1 << (relayOrder[i] - 1);
-//
-//				retry = RETRY_TIMES;
-//				while ( (retry > 0) && ( (valR & relVal) == 0))
-//				{
-//					if (OK != relayChSet(dev, relayOrder[i], ON))
-//					{
-//						retry = 0;
-//						break;
-//					}
-//
-//					if (OK != relayGet(dev, &valR))
-//					{
-//						retry = 0;
-//					}
-//				}
-//				if (retry == 0)
-//				{
-//					printf("Fail to write relay\n");
-//					if (file)
-//						fclose(file);
-//					exit(1);
-//				}
-//				busyWait(150);
-//			}
-//
-//			for (i = 0; i < 8; i++)
-//			{
-//				relayResult = checkThreadResult();
-//				if (relayResult != 0)
-//				{
-//					break;
-//				}
-//				valR = 0xff;
-//				relVal = (u8)1 << (relayOrder[i] - 1);
-//				retry = RETRY_TIMES;
-//				while ( (retry > 0) && ( (valR & relVal) != 0))
-//				{
-//					if (OK != relayChSet(dev, relayOrder[i], OFF))
-//					{
-//						retry = 0;
-//					}
-//					if (OK != relayGet(dev, &valR))
-//					{
-//						retry = 0;
-//					}
-//				}
-//				if (retry == 0)
-//				{
-//					printf("Fail to write relay!\n");
-//					if (file)
-//						fclose(file);
-//					exit(1);
-//				}
-//				busyWait(150);
-//			}
-//		}
-//	}
-//	if (relayResult == YES)
-//	{
-//		if (file)
-//		{
-//			fprintf(file, "Relay Test ............................ PASS\n");
-//		}
-//		else
-//		{
-//			printf("Relay Test ............................ PASS\n");
-//		}
-//	}
-//	else
-//	{
-//		if (file)
-//		{
-//			fprintf(file, "Relay Test ............................ FAIL!\n");
-//		}
-//		else
-//		{
-//			printf("Relay Test ............................ FAIL!\n");
-//		}
-//	}
-	if (file)
+	else
 	{
-		fclose(file);
+		printf("Invalid arguments number! Usage: %s\n", CMD_BOARD.usage1);
 	}
+
 }
 
 static void doWarranty(int argc UNU, char* argv[] UNU)
 {
 	printf("%s\n", warranty);
+}
+
+void usage(void)
+{
+	int i = 0;
+	for (i = 0; i < CMD_ARRAY_SIZE; i++)
+	{
+		if (sizeof (gCmdArray[i].usage1) > 1)
+		{
+			printf("%s", gCmdArray[i].usage1);
+		}
+		if (sizeof (gCmdArray[i].usage2) > 1)
+		{
+			printf("%s", gCmdArray[i].usage2);
+		}
+	}
 }
 
 static void cliInit(void)
@@ -428,7 +340,7 @@ static void cliInit(void)
 //	i++;
 	memcpy(&gCmdArray[i], &CMD_READ, sizeof(CliCmdType));
 	i++;
-	memcpy(&gCmdArray[i], &CMD_TEST, sizeof(CliCmdType));
+	memcpy(&gCmdArray[i], &CMD_BOARD, sizeof(CliCmdType));
 	i++;
 	memcpy(&gCmdArray[i], &CMD_VERSION, sizeof(CliCmdType));
 
@@ -442,7 +354,7 @@ int main(int argc, char *argv[])
 
 	if (argc == 1)
 	{
-		printf("%s\n", usage);
+		usage();
 		return 1;
 	}
 	for (i = 0; i < CMD_ARRAY_SIZE; i++)
@@ -457,7 +369,7 @@ int main(int argc, char *argv[])
 		}
 	}
 	printf("Invalid command option\n");
-	printf("%s\n", usage);
+	usage();
 
 	return 0;
 }
