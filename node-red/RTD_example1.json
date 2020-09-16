@@ -1,0 +1,755 @@
+[
+    {
+        "id": "dedb85dc.b133d8",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "710c3989.cfec58",
+        "type": "ui_gauge",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "group": "f642339a.d5755",
+        "order": 1,
+        "width": 6,
+        "height": 5,
+        "gtype": "gage",
+        "title": "Office",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "120",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 930,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "ea222b96.83e048",
+        "type": "exec",
+        "z": "dedb85dc.b133d8",
+        "command": "rtd 0 read 1",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "",
+        "x": 570,
+        "y": 280,
+        "wires": [
+            [
+                "a32c409c.a7928"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "11da4b16.d64ef5",
+        "type": "ui_gauge",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "group": "d21675f5.4d9908",
+        "order": 1,
+        "width": 6,
+        "height": 5,
+        "gtype": "gage",
+        "title": "Living",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "120",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 930,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "47779f79.d78c6",
+        "type": "exec",
+        "z": "dedb85dc.b133d8",
+        "command": "rtd 0 read 2",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "",
+        "x": 570,
+        "y": 400,
+        "wires": [
+            [
+                "207f3b4b.9bc204"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "1cbd1095.05225f",
+        "type": "ui_gauge",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "group": "6d0e4a93.472f74",
+        "order": 1,
+        "width": 6,
+        "height": 5,
+        "gtype": "gage",
+        "title": "Garage",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "120",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 940,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "63b12e71.9367c",
+        "type": "exec",
+        "z": "dedb85dc.b133d8",
+        "command": "rtd 0 read 3",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "",
+        "x": 570,
+        "y": 500,
+        "wires": [
+            [
+                "2573f03.05b3a1"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "8279d9fb.693728",
+        "type": "ui_gauge",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "group": "e5b51cb5.75436",
+        "order": 1,
+        "width": 6,
+        "height": 5,
+        "gtype": "gage",
+        "title": "Fridge",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "120",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 910,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "7e9abb3f.25de24",
+        "type": "exec",
+        "z": "dedb85dc.b133d8",
+        "command": "rtd 0 read 4",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "",
+        "x": 570,
+        "y": 580,
+        "wires": [
+            [
+                "13b08064.1d79f"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "2e86c5a5.9d2b4a",
+        "type": "ui_gauge",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "group": "f642339a.d5755",
+        "order": 2,
+        "width": 6,
+        "height": 5,
+        "gtype": "gage",
+        "title": "Boiling Water",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "120",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 930,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "6600cad.f254534",
+        "type": "exec",
+        "z": "dedb85dc.b133d8",
+        "command": "rtd 0 read 5",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "",
+        "x": 570,
+        "y": 660,
+        "wires": [
+            [
+                "38399254.8411ee"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "8d3296f9.c06828",
+        "type": "ui_gauge",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "group": "d21675f5.4d9908",
+        "order": 2,
+        "width": 6,
+        "height": 5,
+        "gtype": "gage",
+        "title": "Outdoor Sunsine",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "120",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 930,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "2e246246.be11be",
+        "type": "exec",
+        "z": "dedb85dc.b133d8",
+        "command": "rtd 0 read 6",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "",
+        "x": 570,
+        "y": 800,
+        "wires": [
+            [
+                "cef9fbcb.12fe68"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "ae87b01b.73a29",
+        "type": "ui_gauge",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "group": "6d0e4a93.472f74",
+        "order": 2,
+        "width": 6,
+        "height": 5,
+        "gtype": "gage",
+        "title": "Outdor Shade",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": "-20",
+        "max": "120",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 940,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "1c2be339.f4b64d",
+        "type": "exec",
+        "z": "dedb85dc.b133d8",
+        "command": "rtd 0 read 7",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "",
+        "x": 570,
+        "y": 900,
+        "wires": [
+            [
+                "88e786fc.c640d8"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "c2758ee1.f0939",
+        "type": "ui_gauge",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "group": "e5b51cb5.75436",
+        "order": 2,
+        "width": 6,
+        "height": 5,
+        "gtype": "gage",
+        "title": "Freezer",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": "-30",
+        "max": "60",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 940,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "73bbb75c.57af78",
+        "type": "exec",
+        "z": "dedb85dc.b133d8",
+        "command": "rtd 0 read 8",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "",
+        "x": 570,
+        "y": 980,
+        "wires": [
+            [
+                "5023402d.2a192"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "d75976cd.56d598",
+        "type": "inject",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 90,
+        "y": 300,
+        "wires": [
+            [
+                "ea222b96.83e048",
+                "666d6b85.b98334"
+            ]
+        ]
+    },
+    {
+        "id": "666d6b85.b98334",
+        "type": "delay",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "20",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 210,
+        "y": 400,
+        "wires": [
+            [
+                "705b3583.6e855c",
+                "47779f79.d78c6"
+            ]
+        ]
+    },
+    {
+        "id": "705b3583.6e855c",
+        "type": "delay",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "20",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 210,
+        "y": 500,
+        "wires": [
+            [
+                "ded77b91.e385a8",
+                "63b12e71.9367c"
+            ]
+        ]
+    },
+    {
+        "id": "ded77b91.e385a8",
+        "type": "delay",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "20",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 210,
+        "y": 580,
+        "wires": [
+            [
+                "9e4c7061.e2859",
+                "7e9abb3f.25de24"
+            ]
+        ]
+    },
+    {
+        "id": "9e4c7061.e2859",
+        "type": "delay",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "20",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 190,
+        "y": 660,
+        "wires": [
+            [
+                "a27c496.6fb64b8",
+                "6600cad.f254534"
+            ]
+        ]
+    },
+    {
+        "id": "a27c496.6fb64b8",
+        "type": "delay",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "20",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 190,
+        "y": 780,
+        "wires": [
+            [
+                "cb0470bf.14188",
+                "2e246246.be11be"
+            ]
+        ]
+    },
+    {
+        "id": "cb0470bf.14188",
+        "type": "delay",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "20",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 210,
+        "y": 900,
+        "wires": [
+            [
+                "260d19cf.378d66",
+                "1c2be339.f4b64d"
+            ]
+        ]
+    },
+    {
+        "id": "260d19cf.378d66",
+        "type": "delay",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "20",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 190,
+        "y": 980,
+        "wires": [
+            [
+                "73bbb75c.57af78"
+            ]
+        ]
+    },
+    {
+        "id": "a32c409c.a7928",
+        "type": "function",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "func": "newMsg ={payload: msg.payload};\nif(parseFloat(msg.payload) > 120 || parseFloat(msg.payload) < -60)\n{\n    newMsg.payload = \"25.6712\";\n}\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 750,
+        "y": 280,
+        "wires": [
+            [
+                "710c3989.cfec58"
+            ]
+        ]
+    },
+    {
+        "id": "207f3b4b.9bc204",
+        "type": "function",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "func": "newMsg ={payload: msg.payload};\nif(parseFloat(msg.payload) > 120 || parseFloat(msg.payload) < -60)\n{\n    newMsg.payload = \"26.1542\";\n}\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 750,
+        "y": 380,
+        "wires": [
+            [
+                "11da4b16.d64ef5"
+            ]
+        ]
+    },
+    {
+        "id": "2573f03.05b3a1",
+        "type": "function",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "func": "newMsg ={payload: msg.payload};\nif(parseFloat(msg.payload) > 120 || parseFloat(msg.payload) < -60)\n{\n    newMsg.payload = \"30.2174\";\n}\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 750,
+        "y": 480,
+        "wires": [
+            [
+                "1cbd1095.05225f"
+            ]
+        ]
+    },
+    {
+        "id": "13b08064.1d79f",
+        "type": "function",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "func": "newMsg ={payload: msg.payload};\nif(parseFloat(msg.payload) > 120 || parseFloat(msg.payload) < -60)\n{\n    newMsg.payload = \"8.0475\";\n}\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 750,
+        "y": 560,
+        "wires": [
+            [
+                "8279d9fb.693728"
+            ]
+        ]
+    },
+    {
+        "id": "38399254.8411ee",
+        "type": "function",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "func": "newMsg ={payload: msg.payload};\nif(parseFloat(msg.payload) > 120 || parseFloat(msg.payload) < -60)\n{\n    newMsg.payload = \"100.0312\";\n}\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 750,
+        "y": 640,
+        "wires": [
+            [
+                "2e86c5a5.9d2b4a"
+            ]
+        ]
+    },
+    {
+        "id": "cef9fbcb.12fe68",
+        "type": "function",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "func": "newMsg ={payload: msg.payload};\nif(parseFloat(msg.payload) > 120 || parseFloat(msg.payload) < -60)\n{\n    newMsg.payload = \"34.1283\";\n}\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 750,
+        "y": 780,
+        "wires": [
+            [
+                "8d3296f9.c06828"
+            ]
+        ]
+    },
+    {
+        "id": "88e786fc.c640d8",
+        "type": "function",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "func": "newMsg ={payload: msg.payload};\nif(parseFloat(msg.payload) > 120 || parseFloat(msg.payload) < -60)\n{\n    newMsg.payload = \"28.9543\";\n}\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 750,
+        "y": 880,
+        "wires": [
+            [
+                "ae87b01b.73a29"
+            ]
+        ]
+    },
+    {
+        "id": "5023402d.2a192",
+        "type": "function",
+        "z": "dedb85dc.b133d8",
+        "name": "",
+        "func": "newMsg ={payload: msg.payload};\nif(parseFloat(msg.payload) > 120 || parseFloat(msg.payload) < -60)\n{\n    newMsg.payload = \"-19.8942\";\n}\nreturn newMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 770,
+        "y": 960,
+        "wires": [
+            [
+                "c2758ee1.f0939"
+            ]
+        ]
+    },
+    {
+        "id": "f642339a.d5755",
+        "type": "ui_group",
+        "z": "",
+        "name": "TEMPERATURE1",
+        "tab": "501903b1.f40adc",
+        "order": 1,
+        "disp": false,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "d21675f5.4d9908",
+        "type": "ui_group",
+        "z": "",
+        "name": "TEMPERATURE2",
+        "tab": "501903b1.f40adc",
+        "order": 2,
+        "disp": false,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "6d0e4a93.472f74",
+        "type": "ui_group",
+        "z": "",
+        "name": "TEMPERATURE3",
+        "tab": "501903b1.f40adc",
+        "order": 3,
+        "disp": false,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "e5b51cb5.75436",
+        "type": "ui_group",
+        "z": "",
+        "name": "TEMPERATURE4",
+        "tab": "501903b1.f40adc",
+        "order": 4,
+        "disp": false,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "501903b1.f40adc",
+        "type": "ui_tab",
+        "z": "",
+        "name": "RTD",
+        "icon": "dashboard",
+        "order": 3,
+        "disabled": false,
+        "hidden": false
+    }
+]
