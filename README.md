@@ -31,3 +31,9 @@ If you clone the repository any update can be made with the following commands:
 ~/rtd-rpi$ git pull
 ~/rtd-rpi$ sudo make install
 ```  
+
+Python library availble [here](https://github.com/SequentMicrosystems/rtd-rpi/tree/master/python).
+
+Node-Red example based on exe-node [here](https://github.com/SequentMicrosystems/rtd-rpi/tree/master/node-red)
+
+Node-Red rtd node is under construction.
