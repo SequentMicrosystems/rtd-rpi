@@ -52,12 +52,10 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 
 ### get(stack, channel)
-Get one rtd temperature.
 
-stack - stack level of the MEGA-RTD card (selectable from address jumpers [0..7])
+- stack - stack level of the MEGA-RTD card (selectable from address jumpers [0..7]).
+- channel - channel number (id) [1..8].
 
-channel - channel number (id) [1..8]
-
-return tempetature in deg Celsius
+return tempetature in deg Celsius.
 
 
