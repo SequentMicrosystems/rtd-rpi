@@ -1,12 +1,11 @@
 [![rtd-rpi](readmeres/sequent.jpg)](https://www.sequentmicrosystems.com)
 
 # rtd-rpi
-
-This is the command to control [MEGA-RTD Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/index.php?route=product/product&path=33&product_id=66)
-
 ![rtd](readmeres/rtd.jpg)
 
-Don't forget to enable I2C communication:
+This is the command to control [RTD Data Acquisition Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/product/rtd-data-acquisition-stackable-card-for-rpi/).
+
+First enable I2C communication:
 ```bash
 ~$ sudo raspi-config
 ```
