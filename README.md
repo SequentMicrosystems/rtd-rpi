@@ -1,7 +1,7 @@
 [![rtd-rpi](readmeres/sequent.jpg)](https://www.sequentmicrosystems.com)
 
 # rtd-rpi
-![rtd](readmeres/rtd.jpg)
+![rtd](readmeres/RTD1.jpg)
 
 This is the command to control [RTD Data Acquisition Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/product/rtd-data-acquisition-stackable-card-for-rpi/).
 
