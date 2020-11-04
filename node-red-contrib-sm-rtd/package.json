@@ -1,0 +1,33 @@
+{
+  "name": "node-red-contrib-sm-rtd",
+  "version": "1.0.2",
+  "bundleDependencies": false,
+  "dependencies": {
+    "i2c-bus": "^5.2.0"
+  },
+  "deprecated": false,
+  "description": "A Node-RED node to control Sequent Microsystems RTD Data Acquisition Card",
+  "main": "rtd.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sequent Microsystems",
+  "license": "MIT",
+  "node-red" : {
+    "nodes": {
+        "rtd": "rtd.js"
+      }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SequentMicrosystems/rtd-rpi/node-red-contrib-sm-rtd/"
+  },
+  "keywords": [
+    "node-red",
+    "node-red-contrib",
+    "i2c",
+    "rtd",
+    "temperature",
+    "aquisition"
+  ]
+}
