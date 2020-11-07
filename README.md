@@ -36,3 +36,5 @@ Python library availble [here](https://github.com/SequentMicrosystems/rtd-rpi/tr
 Node-Red example based on exe-node [here](https://github.com/SequentMicrosystems/rtd-rpi/tree/master/node-red)
 
 Node-Red [rtd node](https://github.com/SequentMicrosystems/rtd-rpi/tree/master/node-red-contrib-sm-rtd)
+
+[Firmware update](https://github.com/SequentMicrosystems/rtd-rpi/tree/master/update).
