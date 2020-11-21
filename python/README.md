@@ -1,7 +1,7 @@
 [![librtd](res/sequent.jpg)](https://www.sequentmicrosystems.com)
 # librtd
 
-This is the python library to control the [RTD Data Acquisition Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/product/rtd-data-acquisition-stackable-card-for-rpi/).
+This is the python library to control the [RTD Data Acquisition Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/product/rtd-data-acquisition-card-for-rpi/).
 
 ## Install
 
