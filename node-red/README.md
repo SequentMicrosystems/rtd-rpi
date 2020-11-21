@@ -1,6 +1,6 @@
 # node-red examples
 
-Examples to control [MEGA-RTD Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/index.php?route=product/product&path=33&product_id=66)
+Examples to control [MEGA-RTD Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/product/rtd-data-acquisition-card-for-rpi/)
 
 This example is for guidance only.
 
