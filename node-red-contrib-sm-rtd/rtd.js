@@ -15,9 +15,9 @@ module.exports = function(RED) {
         node.on("input", function(msg) {
             var myPayload;
             var stack = node.stack; 
-            //if (isNaN(stack)) stack = msg.stack;
-            var channel = node.channel || msg.channel;
-            //if (isNaN(channel)) channel = msg.channel;
+            if (isNaN(stack)) stack = msg.stack;
+            var channel = node.channel;
+            if (isNaN(channel)) channel = msg.channel;
             stack = parseInt(stack);
             channel = parseInt(channel);
             //var buffcount = parseInt(node.count);
