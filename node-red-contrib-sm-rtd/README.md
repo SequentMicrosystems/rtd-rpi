@@ -15,7 +15,7 @@ In your node-red user directory, tipicaly ~/.node-red,
 Run the fallowing command:
 
 ```bash
-~/.node-red$ npm install ~/megabas-rpi/node-red-contrib-sm-rtd
+~/.node-red$ npm install ~/rtd-rpi/node-red-contrib-sm-rtd
 ```
 
 In order to see the node in the palette and use-it you need to restart node-red. If you run node-red as a service:
