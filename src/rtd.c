@@ -19,10 +19,10 @@
 
 #define VERSION_BASE	(int)1
 #define VERSION_MAJOR	(int)0
-#define VERSION_MINOR	(int)0
+#define VERSION_MINOR	(int)2
 
 #define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
-#define CMD_ARRAY_SIZE	5
+#define CMD_ARRAY_SIZE	7
 
 void usage(void);
 
@@ -48,7 +48,7 @@ const CliCmdType CMD_VERSION =
 	"",
 	"\tExample:    rtd -v  Display the version number\n"};
 
-static void doWarranty(int argc, char* argv[]);
+static void doWarranty(int argc, char *argv[]);
 const CliCmdType CMD_WAR =
 {
 	"-warranty",
@@ -59,16 +59,16 @@ const CliCmdType CMD_WAR =
 	"",
 	"\tExample:    rtd -warranty  Display the warranty text\n"};
 
-//static void doList(int argc, char *argv[]);
-//const CliCmdType CMD_LIST =
-//{
-//	"-list",
-//	1,
-//	&doList,
-//	"\t-list:       List all rtd boards connected,\n\treturn       nr of boards and stack level for every board\n",
-//	"\tUsage:       rtd -list\n",
-//	"",
-//	"\tExample:     rtd -list display: 1,0 \n"};
+static void doList(int argc, char *argv[]);
+const CliCmdType CMD_LIST =
+	{
+		"-list",
+		1,
+		&doList,
+		"\t-list:      List all rtd the connected cards,\n\treturn      nr of boards and stack level for every board\n",
+		"\tUsage:      rtd -list\n",
+		"",
+		"\tExample:    rtd -list display all the connected rtd cards \n"};
 
 static void doRtdRead(int argc, char *argv[]);
 const CliCmdType CMD_READ =
@@ -81,7 +81,18 @@ const CliCmdType CMD_READ =
 		"",
 		"\tExample:    rtd 0 read 2; Read the temperature on channel #2 on Board #0\n"};
 
-static void doBoard(int argc, char* argv[]);
+static void doRtdReadR(int argc, char *argv[]);
+const CliCmdType CMD_READ_R =
+	{
+		"readres",
+		2,
+		&doRtdReadR,
+		"\treadres:       Read rtd channel resistance\n",
+		"\tUsage:      rtd <id> readres <channel>\n",
+		"",
+		"\tExample:    rtd 0 read 2; Read the resistance on channel #2 on Board #0\n"};
+
+static void doBoard(int argc, char *argv[]);
 const CliCmdType CMD_BOARD =
 {
 	"board",
@@ -93,7 +104,6 @@ const CliCmdType CMD_BOARD =
 	"\tExample:    rtd 0 board\n"};
 
 CliCmdType gCmdArray[CMD_ARRAY_SIZE];
-
 
 char *warranty =
 	"	       Copyright (c) 2016-2020 Sequent Microsystems\n"
@@ -137,7 +147,20 @@ int doBoardInit(int stack)
 	return dev;
 }
 
-int rtdChGet(int dev, u8 channel, float* temperature)
+int boardCheck(u8 add)
+{
+	int dev;
+	u8 buff[2];
+
+	dev = i2cSetup(add);
+	if (dev == -1)
+	{
+		return ERROR;
+	}
+	return (i2cMem8Read(dev, REVISION_MAJOR_MEM_ADD, buff, 1));
+}
+
+int rtdChGet(int dev, u8 channel, float *temperature)
 {
 	u8 buff[sizeof(float)];
 
@@ -160,6 +183,32 @@ int rtdChGet(int dev, u8 channel, float* temperature)
 	}
 
 	memcpy(temperature, buff, sizeof(float));
+	return OK;
+}
+
+int rtdChGetR(int dev, u8 channel, float *resistance)
+{
+	u8 buff[sizeof(float)];
+
+	if (NULL == resistance)
+	{
+		return ERROR;
+	}
+
+	if ( (channel < CHANNEL_NR_MIN) || (channel > RTD_CH_NR_MAX))
+	{
+		printf("Invalid rtd channel nr!\n");
+		return ERROR;
+	}
+
+	if (FAIL
+		== i2cMem8Read(dev, RTD_RES1_ADD + sizeof(float) * (channel - 1), buff,
+			sizeof(float)))
+	{
+		return ERROR;
+	}
+
+	memcpy(resistance, buff, sizeof(float));
 	return OK;
 }
 
@@ -199,6 +248,41 @@ static void doRtdRead(int argc, char *argv[])
 	else
 	{
 		printf("Usage: %s read temperature value\n", argv[0]);
+		exit(1);
+	}
+}
+
+static void doRtdReadR(int argc, char *argv[])
+{
+	int ch = 0;
+	float val = 0;
+	int dev = 0;
+
+	dev = doBoardInit(atoi(argv[1]));
+	if (dev <= 0)
+	{
+		exit(1);
+	}
+
+	if (argc == 4)
+	{
+		ch = atoi(argv[3]);
+		if ( (ch < CHANNEL_NR_MIN) || (ch > RTD_CH_NR_MAX))
+		{
+			printf("RTD channel number value out of range!\n");
+			exit(1);
+		}
+
+		if (OK != rtdChGetR(dev, ch, &val))
+		{
+			printf("Fail to read!\n");
+			exit(1);
+		}
+		printf("%06f\n", val);
+	}
+	else
+	{
+		printf("Usage: %s read resistance value\n", argv[0]);
 		exit(1);
 	}
 }
@@ -243,44 +327,54 @@ static void doVersion(int argc, char *argv[])
 
 }
 
-//static void doList(int argc, char *argv[])
-//{
-//	int ids[8];
-//	int i;
-//	int cnt = 0;
-//
-//	UNUSED(argc);
-//	UNUSED(argv);
-//
-//	for (i = 0; i < 8; i++)
-//	{
-//		if (boardCheck(RELAY8_HW_I2C_BASE_ADD + i) == OK)
-//		{
-//			ids[cnt] = i;
-//			cnt++;
-//		}
-//	}
-//	printf("%d board(s) detected\n", cnt);
-//	if (cnt > 0)
-//	{
-//		printf("Id:");
-//	}
-//	while (cnt > 0)
-//	{
-//		cnt--;
-//		printf(" %d", ids[cnt]);
-//	}
-//	printf("\n");
-//}
+static void doList(int argc, char *argv[])
+{
+	int ids[8];
+	int i;
+	int cnt = 0;
 
+	UNUSED(argc);
+	UNUSED(argv);
+
+	for (i = 0; i < 8; i++)
+	{
+		if (boardCheck(SLAVE_OWN_ADDRESS_BASE + i) == OK)
+		{
+			ids[cnt] = i;
+			cnt++;
+		}
+	}
+	printf("%d board(s) detected\n", cnt);
+	if (cnt > 0)
+	{
+		printf("Id:");
+	}
+	while (cnt > 0)
+	{
+		cnt--;
+		printf(" %d", ids[cnt]);
+	}
+	printf("\n");
+}
+
+//#define DEBUG_ADS
 /* 
  * Self test for production
  */
-static void doBoard(int argc, char* argv[])
+static void doBoard(int argc, char *argv[])
 {
 	int dev = 0;
-	u8 buff[2] =
+#ifdef DEBUG_ADS
+	int reinit = 0;
+	u16 sps[2] =
 	{
+		0,
+		0};
+#endif
+	u8 buff[4] =
+	{
+		0,
+		0,
 		0,
 		0};
 
@@ -292,11 +386,28 @@ static void doBoard(int argc, char* argv[])
 
 	if (argc == 3)
 	{
+#ifdef DEBUG_ADS
+		if (FAIL == i2cMem8Read(dev, RTD_SPS1_ADD, buff, 4))
+		{
+			exit(1);
+		}
+		memcpy(sps, buff, 4);
+		if (FAIL == i2cMem8Read(dev, RTD_REINIT_COUNT, buff, 4))
+		{
+			exit(1);
+		}
+		memcpy(&reinit, buff, 4);
+#endif
 		if (FAIL == i2cMem8Read(dev, REVISION_MAJOR_MEM_ADD, buff, 2))
 		{
 			exit(1);
 		}
-		printf("Mega RTD firmware version %d.%02d\n", (int)buff[0], (int)buff[1]);
+		printf("Mega RTD firmware version %d.%02d ", (int)buff[0], (int)buff[1]);
+#ifdef DEBUG_ADS
+		printf("ARC = %d, SPS1 = %d, SPS2 = %d", reinit, (int)sps[0],
+			(int)sps[1]);
+#endif
+		printf("\n");
 	}
 	else
 	{
@@ -305,7 +416,7 @@ static void doBoard(int argc, char* argv[])
 
 }
 
-static void doWarranty(int argc UNU, char* argv[] UNU)
+static void doWarranty(int argc UNU, char *argv[] UNU)
 {
 	printf("%s\n", warranty);
 }
@@ -336,9 +447,11 @@ static void cliInit(void)
 	i++;
 	memcpy(&gCmdArray[i], &CMD_WAR, sizeof(CliCmdType));
 	i++;
-//	memcpy(&gCmdArray[i], &CMD_LIST, sizeof(CliCmdType));
-//	i++;
+	memcpy(&gCmdArray[i], &CMD_LIST, sizeof(CliCmdType));
+	i++;
 	memcpy(&gCmdArray[i], &CMD_READ, sizeof(CliCmdType));
+	i++;
+	memcpy(&gCmdArray[i], &CMD_READ_R, sizeof(CliCmdType));
 	i++;
 	memcpy(&gCmdArray[i], &CMD_BOARD, sizeof(CliCmdType));
 	i++;
