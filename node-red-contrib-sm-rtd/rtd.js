@@ -1,6 +1,7 @@
 module.exports = function(RED) {
     "use strict";
     var I2C = require("i2c-bus");
+	const RTD_RES1_ADD = 59;
     // The RTD Node
     function RTDNode(n) {
         RED.nodes.createNode(this, n);
@@ -20,6 +21,11 @@ module.exports = function(RED) {
             if (isNaN(channel)) channel = msg.channel;
             stack = parseInt(stack);
             channel = parseInt(channel);
+            var readRes = true;
+            if(node.resistance == false || node.resistance == "false" || node.resistance == 0)
+            {
+              readRes = false;
+            }
             //var buffcount = parseInt(node.count);
             if (isNaN(stack+1)) {
                 this.status({fill:"red",shape:"ring",text:"Stack level ("+stack+") value is missing or incorrect"});
@@ -54,7 +60,12 @@ module.exports = function(RED) {
                 } else {
                     myPayload = RED.util.evaluateNodeProperty(this.payload, this.payloadType, this,msg);
                 }
-                node.port.readI2cBlock(hwAdd, (channel - 1)*4, 4, buffer,  function(err, size, res) {
+				var addOffset = 0;
+				if(readRes)
+				{
+					addOffset = RTD_RES1_ADD;	
+				}
+                node.port.readI2cBlock(hwAdd, addOffset + (channel - 1)*4, 4, buffer,  function(err, size, res) {
                     if (err) { 
                         node.error(err, msg);
                     } 

@@ -7,6 +7,10 @@
         <label for="node-input-channel"><i class="fa fa-empire"></i> RTD Sensor Number</label>
         <input type="number" id="node-input-channel" class="rtd-out-channel" placeholder="[msg.channel]" min=1 max=8 style="width:100px; height:16px;">
     </div>
+	 <div class="form-row">
+        <label style="width:auto" for="node-input-resistance"><i class="fa fa-arrow-right"></i> Output sensor <code>resistance</code> : </label>
+        <input type="checkbox" id="node-input-resistance" style="display:inline-block; width:auto; vertical-align:top;">
+    </div>
     <div class="form-row">
         <label for="node-input-payload"><i class="fa fa-envelope"></i> Payload</span></label>
         <input type="text" id="node-input-payload" style="width:70%">
@@ -30,6 +34,7 @@
             name: {value:""},
             stack: {value:"0"},
             channel: {value:"1"},
+			resistance: {value: false},
             payload: {value:"payload", required:false, validate: RED.validators.typedInput("payloadType")},
             payloadType: {value:"msg"},
         },
