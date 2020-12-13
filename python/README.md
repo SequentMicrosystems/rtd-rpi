@@ -58,4 +58,11 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 return tempetature in deg Celsius.
 
+### getRes(stack, channel)
+
+- stack - stack level of the MEGA-RTD card (selectable from address jumpers [0..7]).
+- channel - channel number (id) [1..8].
+
+return sensor resistance in ohms.
+
 
