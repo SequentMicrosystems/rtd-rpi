@@ -9,6 +9,7 @@ module.exports = function(RED) {
         this.channel = parseInt(n.channel);
         this.payload = n.payload;
         this.payloadType = n.payloadType;
+        this.resistance = n.resistance;
         var node = this;
         var buffer = Buffer.alloc(4);
         
