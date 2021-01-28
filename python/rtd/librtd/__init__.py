@@ -14,12 +14,14 @@ def get(stack, channel):
         raise ValueError('Invalid stack level')
     if channel < 1 or channel > 8:
         raise ValueError('Invalid channel number')
+    val = (-273.15)
     bus = smbus.SMBus(1)
     try:
         buff = bus.read_i2c_block_data(DEVICE_ADDRESS + stack, RTD_TEMPERATURE_ADD + (4 * (channel - 1)), 4)
         val = struct.unpack('f', bytearray(buff))
     except Exception as e:
-        val[0] = -273.15
+        bus.close()
+        raise ValueError('Fail to communicate with the RTD card with message: \"' + str(e) + '\"')
     bus.close()
     return val[0]
 
@@ -29,11 +31,13 @@ def getRes(stack, channel):
         raise ValueError('Invalid stack level')
     if channel < 1 or channel > 8:
         raise ValueError('Invalid channel number')
+    val = (-273.15)
     bus = smbus.SMBus(1)
     try:
         buff = bus.read_i2c_block_data(DEVICE_ADDRESS + stack, RTD_RESISTANCE_ADD + (4 * (channel - 1)), 4)
         val = struct.unpack('f', bytearray(buff))
     except Exception as e:
-        val[0] = 0
+        bus.close()
+        raise ValueError('Fail to communicate with the RTD card with message: \"' + str(e) + '\"')
     bus.close()
     return val[0]
