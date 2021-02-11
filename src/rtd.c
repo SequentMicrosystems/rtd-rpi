@@ -2,7 +2,7 @@
  * rtd.c:
  *	Command-line interface to the Raspberry
  *	Pi's MEGAS-RTD board.
- *	Copyright (c) 2016-2020 Sequent Microsystem
+ *	Copyright (c) 2016-2021 Sequent Microsystem
  *	<http://www.sequentmicrosystem.com>
  ***********************************************************************
  *	Author: Alexandru Burcea
@@ -16,17 +16,19 @@
 #include "rtd.h"
 #include "comm.h"
 #include "thread.h"
+#include "wdt.h"
+#include "led.h"
+#include "rs485.h"
 
 #define VERSION_BASE	(int)1
-#define VERSION_MAJOR	(int)0
-#define VERSION_MINOR	(int)2
+#define VERSION_MAJOR	(int)2
+#define VERSION_MINOR	(int)1
 
 #define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
-#define CMD_ARRAY_SIZE	7
 
 void usage(void);
 
-static void doHelp(int argc, char *argv[]);
+int doHelp(int argc, char *argv[]);
 const CliCmdType CMD_HELP =
 	{
 		"-h",
@@ -37,7 +39,7 @@ const CliCmdType CMD_HELP =
 		"\tUsage:      rtd -h <param>   Display help for <param> command option\n",
 		"\tExample:    rtd -h write    Display help for \"write\" command option\n"};
 
-static void doVersion(int argc, char *argv[]);
+int doVersion(int argc, char *argv[]);
 const CliCmdType CMD_VERSION =
 {
 	"-v",
@@ -48,7 +50,7 @@ const CliCmdType CMD_VERSION =
 	"",
 	"\tExample:    rtd -v  Display the version number\n"};
 
-static void doWarranty(int argc, char *argv[]);
+int doWarranty(int argc, char *argv[]);
 const CliCmdType CMD_WAR =
 {
 	"-warranty",
@@ -59,18 +61,18 @@ const CliCmdType CMD_WAR =
 	"",
 	"\tExample:    rtd -warranty  Display the warranty text\n"};
 
-static void doList(int argc, char *argv[]);
+int doList(int argc, char *argv[]);
 const CliCmdType CMD_LIST =
 	{
 		"-list",
 		1,
 		&doList,
-		"\t-list:      List all rtd the connected cards,\n\treturn      nr of boards and stack level for every board\n",
+		"\t-list:      List all rtd the connected cards, returnnr of boards and stack level for every board\n",
 		"\tUsage:      rtd -list\n",
 		"",
 		"\tExample:    rtd -list display all the connected rtd cards \n"};
 
-static void doRtdRead(int argc, char *argv[]);
+int doRtdRead(int argc, char *argv[]);
 const CliCmdType CMD_READ =
 	{
 		"read",
@@ -81,18 +83,40 @@ const CliCmdType CMD_READ =
 		"",
 		"\tExample:    rtd 0 read 2; Read the temperature on channel #2 on Board #0\n"};
 
-static void doRtdReadR(int argc, char *argv[]);
+int doRtdReadR(int argc, char *argv[]);
 const CliCmdType CMD_READ_R =
 	{
 		"readres",
 		2,
 		&doRtdReadR,
-		"\treadres:       Read rtd channel resistance\n",
+		"\treadres:    Read rtd channel resistance\n",
 		"\tUsage:      rtd <id> readres <channel>\n",
 		"",
 		"\tExample:    rtd 0 read 2; Read the resistance on channel #2 on Board #0\n"};
 
-static void doBoard(int argc, char *argv[]);
+int doRtdCalib(int argc, char *argv[]);
+const CliCmdType CMD_CALIB =
+	{
+		"cal",
+		2,
+		&doRtdCalib,
+		"\tcal:	    Calibrate the resistance measurement, perform 2 points calibration for completion \n",
+		"\tUsage:      rtd <id> cal <channel> <value in ohms>\n",
+		"",
+		"\tExample:    rtd 0 cal 2 100.34; Send one point of calibration at 100.34 ohms for channel #2 on card #0 \n"};
+
+int doRtdCalibRst(int argc, char *argv[]);
+const CliCmdType CMD_CALIB_RST =
+	{
+		"calrst",
+		2,
+		&doRtdCalibRst,
+		"\tcalrst:	    Reset calibration data for one channel\n",
+		"\tUsage:      rtd <id> calrst <channel>\n",
+		"",
+		"\tExample:    rtd 0 calrst 2; Reset calibration data at factory default for channel #2 on card #0 \n"};
+
+int doBoard(int argc, char *argv[]);
 const CliCmdType CMD_BOARD =
 {
 	"board",
@@ -103,10 +127,30 @@ const CliCmdType CMD_BOARD =
 	"",
 	"\tExample:    rtd 0 board\n"};
 
-CliCmdType gCmdArray[CMD_ARRAY_SIZE];
+int doSnsTypeRead(int argc, char *argv[]);
+const CliCmdType CMD_SNS_TYPE_READ =
+	{
+		"styperd",
+		2,
+		&doSnsTypeRead,
+		"\tstyperd:    Display sensor type(0: PT100, 1:PT1000) per group of channels(1: ch[1..4], 2:ch[5..8] \n",
+		"\tUsage:      rtd <id> styperd <group>\n",
+		"",
+		"\tExample:    rtd 0 styperd 1; Display the type of sensor for group 1 (channels 1..4) on the board #0\n"};
+
+int doSnsTypeWrite(int argc, char *argv[]);
+const CliCmdType CMD_SNS_TYPE_WRITE =
+	{
+		"stypewr",
+		2,
+		&doSnsTypeWrite,
+		"\tstypewr:    Set sensor type(0: PT100, 1:PT1000) per group of channels(1: ch[1..4], 2:ch[5..8] \n",
+		"\tUsage:      rtd <id> stypewr <group> <type> \n",
+		"",
+		"\tExample:    rtd 0 stypewr 1 1; Set the type of sensor for group 1(channels 1..4) on the board #0 to PT1000\n"};
 
 char *warranty =
-	"	       Copyright (c) 2016-2020 Sequent Microsystems\n"
+	"	       Copyright (c) 2016-2021 Sequent Microsystems\n"
 		"                                                             \n"
 		"		This program is free software; you can redistribute it and/or modify\n"
 		"		it under the terms of the GNU Leser General Public License as published\n"
@@ -121,11 +165,39 @@ char *warranty =
 		"		You should have received a copy of the GNU Lesser General Public License\n"
 		"		along with this program. If not, see <http://www.gnu.org/licenses/>.";
 
+const CliCmdType *gCmdArray[] =
+{
+	&CMD_HELP,
+	&CMD_WAR,
+	&CMD_LIST,
+	&CMD_VERSION,
+	&CMD_READ,
+	&CMD_READ_R,
+	&CMD_BOARD,
+	&CMD_WDT_RELOAD,
+	&CMD_WDT_SET_PERIOD,
+	&CMD_WDT_GET_PERIOD,
+	&CMD_WDT_SET_INIT_PERIOD,
+	&CMD_WDT_GET_INIT_PERIOD,
+	&CMD_WDT_SET_OFF_PERIOD,
+	&CMD_WDT_GET_OFF_PERIOD,
+	&CMD_READ_LED_MODE,
+	&CMD_WRITE_LED_MODE,
+	&CMD_READ_LED_TH,
+	&CMD_WRITE_LED_TH,
+	&CMD_CALIB,
+	&CMD_CALIB_RST,
+	&CMD_RS485_READ,
+	&CMD_RS485_WRITE,
+	&CMD_SNS_TYPE_READ,
+	&CMD_SNS_TYPE_WRITE,
+	NULL}; //null terminated array of cli structure pointers
+
 int doBoardInit(int stack)
 {
 	int dev = 0;
 	int add = 0;
-	uint8_t buff[8];
+	uint8_t buff;
 
 	if ( (stack < 0) || (stack > 7))
 	{
@@ -138,7 +210,7 @@ int doBoardInit(int stack)
 	{
 		return ERROR;
 	}
-	if (ERROR == i2cMem8Read(dev, REVISION_MAJOR_MEM_ADD, buff, 1))
+	if (ERROR == i2cMem8Read(dev, REVISION_MAJOR_MEM_ADD, &buff, 1))
 	{
 		printf("MEGA-RTD id %d not detected\n", stack);
 		return ERROR;
@@ -150,14 +222,25 @@ int doBoardInit(int stack)
 int boardCheck(u8 add)
 {
 	int dev;
-	u8 buff[2];
+	u8 buff;
 
 	dev = i2cSetup(add);
 	if (dev == -1)
 	{
 		return ERROR;
 	}
-	return (i2cMem8Read(dev, REVISION_MAJOR_MEM_ADD, buff, 1));
+	return (i2cMem8Read(dev, REVISION_MAJOR_MEM_ADD, &buff, 1));
+}
+
+int rtdHwTypeGet(int dev, int* hw)
+{
+	u8 buff;
+	if (FAIL == i2cMem8Read(dev, RTD_CARD_TYPE, &buff, 1))
+	{
+		return ERROR;
+	}
+	*hw = buff;
+	return OK;
 }
 
 int rtdChGet(int dev, u8 channel, float *temperature)
@@ -213,11 +296,11 @@ int rtdChGetR(int dev, u8 channel, float *resistance)
 }
 
 /*
- * doRelayRead:
- *	Read relay state
+ * doRtdRead:
+ *	Read temperature on one channel
  ******************************************************************************************
  */
-static void doRtdRead(int argc, char *argv[])
+int doRtdRead(int argc, char *argv[])
 {
 	int ch = 0;
 	float val = 0;
@@ -250,9 +333,10 @@ static void doRtdRead(int argc, char *argv[])
 		printf("Usage: %s read temperature value\n", argv[0]);
 		exit(1);
 	}
+	return OK;
 }
 
-static void doRtdReadR(int argc, char *argv[])
+int doRtdReadR(int argc, char *argv[])
 {
 	int ch = 0;
 	float val = 0;
@@ -285,49 +369,185 @@ static void doRtdReadR(int argc, char *argv[])
 		printf("Usage: %s read resistance value\n", argv[0]);
 		exit(1);
 	}
+	return OK;
 }
 
-static void doHelp(int argc, char *argv[])
+int doHelp(int argc, char *argv[])
 {
 	int i = 0;
 	if (argc == 3)
 	{
-		for (i = 0; i < CMD_ARRAY_SIZE; i++)
+		while (NULL != gCmdArray[i])
 		{
-			if ( (gCmdArray[i].name != NULL))
+			if (gCmdArray[i]->name != NULL)
 			{
-				if (strcasecmp(argv[2], gCmdArray[i].name) == 0)
+				if (strcasecmp(argv[2], gCmdArray[i]->name) == 0)
 				{
-					printf("%s%s%s%s", gCmdArray[i].help, gCmdArray[i].usage1,
-						gCmdArray[i].usage2, gCmdArray[i].example);
+					printf("%s%s%s%s", gCmdArray[i]->help, gCmdArray[i]->usage1,
+						gCmdArray[i]->usage2, gCmdArray[i]->example);
 					break;
 				}
 			}
+			i++;
 		}
-		if (CMD_ARRAY_SIZE == i)
+		if (NULL == gCmdArray[i])
 		{
 			printf("Option \"%s\" not found\n", argv[2]);
-			usage();
+			i = 0;
+			while (NULL != gCmdArray[i])
+			{
+				if (gCmdArray[i]->name != NULL)
+				{
+					printf("%s", gCmdArray[i]->help);
+					break;
+				}
+				i++;
+			}
 		}
 	}
 	else
 	{
-		usage();
+		i = 0;
+		while (NULL != gCmdArray[i])
+		{
+			if (gCmdArray[i]->name != NULL)
+			{
+				printf("%s", gCmdArray[i]->help);
+			}
+			i++;
+		}
 	}
+	return OK;
 }
 
-static void doVersion(int argc, char *argv[])
+//********************** Calibration *************************
+int rtdSetCalib(int dev, int channel, float value)
+{
+	u8 buff[sizeof(float) + 1];
+
+	if ( (value < 0) || (value > 4000))
+	{
+		return ERROR;
+	}
+
+	if ( (channel < CHANNEL_NR_MIN) || (channel > RTD_CH_NR_MAX))
+	{
+		printf("Invalid rtd channel nr!\n");
+		return ERROR;
+	}
+	memcpy(buff, &value, sizeof(float));
+	buff[sizeof(float)] = channel;
+	if (FAIL == i2cMem8Write(dev, I2C_CALIB_RES, buff, sizeof(float) + 1))
+	{
+		return ERROR;
+	}
+	return OK;
+}
+
+int rtdResetCalib(int dev, int channel)
+{
+	u8 buff[sizeof(float) + 1];
+	float value = -1;
+
+	if ( (channel < CHANNEL_NR_MIN) || (channel > RTD_CH_NR_MAX))
+	{
+		printf("Invalid rtd channel nr!\n");
+		return ERROR;
+	}
+	memcpy(buff, &value, sizeof(float));
+	buff[sizeof(float)] = channel;
+	if (FAIL == i2cMem8Write(dev, I2C_CALIB_RES, buff, sizeof(float) + 1))
+	{
+		return ERROR;
+	}
+	return OK;
+}
+
+int doRtdCalib(int argc, char *argv[])
+{
+	int ch = 0;
+	float val = 0;
+	int dev = 0;
+
+	dev = doBoardInit(atoi(argv[1]));
+	if (dev <= 0)
+	{
+		exit(1);
+	}
+
+	if (argc == 5)
+	{
+		ch = atoi(argv[3]);
+		if ( (ch < CHANNEL_NR_MIN) || (ch > RTD_CH_NR_MAX))
+		{
+			printf("RTD channel number value out of range!\n");
+			exit(1);
+		}
+		val = atof(argv[4]);
+
+		if (OK != rtdSetCalib(dev, ch, val))
+		{
+			printf("Fail to calibrate!\n");
+			exit(1);
+		}
+		printf("OK\n");
+	}
+	else
+	{
+		printf("%s", CMD_CALIB.usage1);
+		exit(1);
+	}
+	return OK;
+}
+
+int doRtdCalibRst(int argc, char *argv[])
+{
+	int ch = 0;
+
+	int dev = 0;
+
+	dev = doBoardInit(atoi(argv[1]));
+	if (dev <= 0)
+	{
+		exit(1);
+	}
+
+	if (argc == 4)
+	{
+		ch = atoi(argv[3]);
+		if ( (ch < CHANNEL_NR_MIN) || (ch > RTD_CH_NR_MAX))
+		{
+			printf("RTD channel number value out of range!\n");
+			exit(1);
+		}
+
+		if (OK != rtdResetCalib(dev, ch))
+		{
+			printf("Fail to calibrate!\n");
+			exit(1);
+		}
+		printf("OK\n");
+	}
+	else
+	{
+		printf("%s", CMD_CALIB_RST.usage1);
+		exit(1);
+	}
+	return OK;
+}
+
+int doVersion(int argc, char *argv[])
 {
 	UNUSED(argc);
 	UNUSED(argv);
-	printf("rtd v%d.%d.%d Copyright (c) 2016 - 2020 Sequent Microsystems\n",
+	printf("rtd v%d.%d.%d Copyright (c) 2016 - 2021 Sequent Microsystems\n",
 	VERSION_BASE, VERSION_MAJOR, VERSION_MINOR);
 	printf("\nThis is free software with ABSOLUTELY NO WARRANTY.\n");
 	printf("For details type: rtd -warranty\n");
-
+	return OK;
 }
 
-static void doList(int argc, char *argv[])
+int doList(int argc, char *argv[])
 {
 	int ids[8];
 	int i;
@@ -355,24 +575,31 @@ static void doList(int argc, char *argv[])
 		printf(" %d", ids[cnt]);
 	}
 	printf("\n");
+	return OK;
 }
 
 //#define DEBUG_ADS
 /* 
  * Self test for production
  */
-static void doBoard(int argc, char *argv[])
+int doBoard(int argc, char *argv[])
 {
 	int dev = 0;
 #ifdef DEBUG_ADS
 	int reinit = 0;
+	u8 cardType = 0;
 	u16 sps[2] =
 	{
 		0,
 		0};
-#endif
-	u8 buff[4] =
+#endif	
+	u16 aux16 = 0;
+	s8 saux8 = 0;
+	float vIn = 0;
+	float vRasp = 0;
+	u8 buff[5] =
 	{
+		0,
 		0,
 		0,
 		0,
@@ -387,102 +614,272 @@ static void doBoard(int argc, char *argv[])
 	if (argc == 3)
 	{
 #ifdef DEBUG_ADS
-		if (FAIL == i2cMem8Read(dev, RTD_SPS1_ADD, buff, 4))
+		if (FAIL == i2cMem8Read(dev, RTD_SPS1_ADD, buff, 5))
 		{
 			exit(1);
 		}
 		memcpy(sps, buff, 4);
+		cardType = buff[4];
 		if (FAIL == i2cMem8Read(dev, RTD_REINIT_COUNT, buff, 4))
 		{
 			exit(1);
 		}
 		memcpy(&reinit, buff, 4);
-#endif
+#endif		
+		if (FAIL == i2cMem8Read(dev, DIAG_TEMPERATURE_MEM_ADD, buff, 3))
+		{
+			exit(1);
+		}
+		memcpy(&saux8, buff, 1);
+		memcpy(&aux16, &buff[1], 2);
+		vIn = (float)aux16 / 1000;
+
+		if (FAIL == i2cMem8Read(dev, RTD_RASP_VOLT, buff, 2))
+		{
+			exit(1);
+		}
+		memcpy(&aux16, buff, 2);
+		vRasp = (float)aux16 / 1000;
+
 		if (FAIL == i2cMem8Read(dev, REVISION_MAJOR_MEM_ADD, buff, 2))
 		{
 			exit(1);
 		}
-		printf("Mega RTD firmware version %d.%02d ", (int)buff[0], (int)buff[1]);
+		printf("Mega RTD firmware version %d.%02d\n", (int)buff[0], (int)buff[1]);
 #ifdef DEBUG_ADS
-		printf("ARC = %d, SPS1 = %d, SPS2 = %d", reinit, (int)sps[0],
-			(int)sps[1]);
-#endif
-		printf("\n");
+		printf("ADC: ARC = %d, SPS1 = %d, SPS2 = %d, Card Type = %d\n", reinit,
+		(int)sps[0], (int)sps[1], (int)cardType);
+#endif		
+		printf("Vin %0.3fV, Vrasp %0.3fV, CPU Temp %dC\n", vIn, vRasp, (int)saux8);
+
+
+
 	}
+#ifdef DEBUG_ADS	
+	else if (argc == 4)
+	{
+		printf("Perform reset..");
+		if (FAIL == i2cMem8Write(dev, 0xaa, buff, 1))
+		{
+			printf("fail!\n");
+		}
+		else
+		{
+			printf("done\n");
+		}
+	}
+#endif	
 	else
 	{
 		printf("Invalid arguments number! Usage: %s\n", CMD_BOARD.usage1);
 	}
-
+	return OK;
 }
 
-static void doWarranty(int argc UNU, char *argv[] UNU)
+int doWarranty(int argc UNU, char *argv[] UNU)
 {
 	printf("%s\n", warranty);
+	return OK;
+}
+
+int sensorRead(int dev, int group, int* val)
+{
+	u8 buff;
+
+	if (NULL == val)
+	{
+		return ERROR;
+	}
+
+	if ( (group < CHANNEL_NR_MIN) || (group > 2))
+	{
+		printf("Invalid rtd group of channels!\n");
+		return ERROR;
+	}
+
+	if (FAIL == i2cMem8Read(dev, I2C_SENSORS_TYPE, &buff, 1))
+	{
+		return ERROR;
+	}
+
+	*val = 0x0f & (buff >> (4 * (group - 1)));
+	return OK;
+}
+
+int sensorWrite(int dev, int group, int val)
+{
+	u8 buff;
+
+	if (val < 0 || val > 1)
+	{
+		printf("Invalid sensor type! Use 0/1 : PT100/PT1000\n");
+		return ERROR;
+	}
+
+	if ( (group < CHANNEL_NR_MIN) || (group > 2))
+	{
+		printf("Invalid rtd group of channels!\n");
+		return ERROR;
+	}
+
+	if (FAIL == i2cMem8Read(dev, I2C_SENSORS_TYPE, &buff, 1))
+	{
+		return ERROR;
+	}
+	if (val != 0)
+	{
+		buff |= 1 << (4 * (group - 1));
+	}
+	else
+	{
+		buff &= 0xff & (~ (1 << (4 * (group - 1))));
+	}
+	if (FAIL == i2cMem8Write(dev, I2C_SENSORS_TYPE, &buff, 1))
+	{
+		return ERROR;
+	}
+
+	return OK;
+}
+
+int doSnsTypeRead(int argc, char *argv[])
+{
+	int ch = 0;
+	int val = 0;
+	int dev = 0;
+	int card = 0;
+
+	dev = doBoardInit(atoi(argv[1]));
+	if (dev <= 0)
+	{
+		exit(1);
+	}
+	if (OK != rtdHwTypeGet(dev, &card))
+	{
+		printf("Fail to read card type!\n");
+		exit(1);
+	}
+	if (card < 1)
+	{
+		printf("Available only for hardware version >= 5.0!\n");
+		exit(1);
+	}
+
+	if (argc == 4)
+	{
+		ch = atoi(argv[3]);
+		if (OK != sensorRead(dev, ch, &val))
+		{
+			printf("Fail to read!\n");
+			exit(1);
+		}
+		printf("%d\n", val);
+	}
+	else
+	{
+		printf("%s", CMD_SNS_TYPE_READ.usage1);
+		exit(1);
+	}
+	return OK;
+}
+
+int doSnsTypeWrite(int argc, char *argv[])
+{
+	int ch = 0;
+	int val = 0;
+	int dev = 0;
+	int card = 0;
+
+	dev = doBoardInit(atoi(argv[1]));
+	if (dev <= 0)
+	{
+		exit(1);
+	}
+	if (OK != rtdHwTypeGet(dev, &card))
+	{
+		printf("Fail to read card type!\n");
+		exit(1);
+	}
+	if (card < 1)
+	{
+		printf("Available only for hardware version >= 5.0!\n");
+		exit(1);
+	}
+	if (argc == 5)
+	{
+		ch = atoi(argv[3]);
+		val = atoi(argv[4]);
+
+		if (OK != sensorWrite(dev, ch, val))
+		{
+			printf("Fail to write!\n");
+			exit(1);
+		}
+		printf("OK\n");
+	}
+	else
+	{
+		printf("%s", CMD_SNS_TYPE_WRITE.usage1);
+		exit(1);
+	}
+	return OK;
 }
 
 void usage(void)
 {
 	int i = 0;
-	for (i = 0; i < CMD_ARRAY_SIZE; i++)
+	while (gCmdArray[i] != NULL)
 	{
-		if (sizeof (gCmdArray[i].usage1) > 1)
+		if (gCmdArray[i]->name != NULL)
 		{
-			printf("%s", gCmdArray[i].usage1);
+			if (strlen(gCmdArray[i]->usage1) > 2)
+			{
+				printf("%s", gCmdArray[i]->usage1);
+			}
+			if (strlen(gCmdArray[i]->usage2) > 2)
+			{
+				printf("%s", gCmdArray[i]->usage2);
+			}
 		}
-		if (sizeof (gCmdArray[i].usage2) > 1)
-		{
-			printf("%s", gCmdArray[i].usage2);
-		}
+		i++;
 	}
-}
-
-static void cliInit(void)
-{
-	int i = 0;
-
-	memset(gCmdArray, 0, sizeof(CliCmdType) * CMD_ARRAY_SIZE);
-
-	memcpy(&gCmdArray[i], &CMD_HELP, sizeof(CliCmdType));
-	i++;
-	memcpy(&gCmdArray[i], &CMD_WAR, sizeof(CliCmdType));
-	i++;
-	memcpy(&gCmdArray[i], &CMD_LIST, sizeof(CliCmdType));
-	i++;
-	memcpy(&gCmdArray[i], &CMD_READ, sizeof(CliCmdType));
-	i++;
-	memcpy(&gCmdArray[i], &CMD_READ_R, sizeof(CliCmdType));
-	i++;
-	memcpy(&gCmdArray[i], &CMD_BOARD, sizeof(CliCmdType));
-	i++;
-	memcpy(&gCmdArray[i], &CMD_VERSION, sizeof(CliCmdType));
-
+	printf("Where: <id> = Board level id = 0..7\n");
+	printf("Type rtd -h <command> for more help\n");
 }
 
 int main(int argc, char *argv[])
 {
 	int i = 0;
-
-	cliInit();
+	int ret = OK;
 
 	if (argc == 1)
 	{
 		usage();
-		return 1;
+		return -1;
 	}
-	for (i = 0; i < CMD_ARRAY_SIZE; i++)
+	while (NULL != gCmdArray[i])
 	{
-		if ( (gCmdArray[i].name != NULL) && (gCmdArray[i].namePos < argc))
+		if ( (gCmdArray[i]->name != NULL) && (gCmdArray[i]->namePos < argc))
 		{
-			if (strcasecmp(argv[gCmdArray[i].namePos], gCmdArray[i].name) == 0)
+			if (strcasecmp(argv[gCmdArray[i]->namePos], gCmdArray[i]->name) == 0)
 			{
-				gCmdArray[i].pFunc(argc, argv);
-				return 0;
+				ret = gCmdArray[i]->pFunc(argc, argv);
+				if (ret == ARG_CNT_ERR)
+				{
+					printf("Invalid parameters number!\n");
+					printf("%s", gCmdArray[i]->usage1);
+					if (strlen(gCmdArray[i]->usage2) > 2)
+					{
+						printf("%s", gCmdArray[i]->usage2);
+					}
+				}
+				return ret;
 			}
 		}
+		i++;
 	}
 	printf("Invalid command option\n");
 	usage();
 
-	return 0;
+	return -1;
 }
