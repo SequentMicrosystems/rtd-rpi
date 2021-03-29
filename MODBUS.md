@@ -34,7 +34,7 @@ Access level Read Only, Size 16 bits
 | TEMP_5 | 30005 | 0x04 | 0.1 degC |
 | TEMP_6 | 30006 | 0x05 | 0.1 degC |
 | TEMP_7 | 30007 | 0x06 | 0.1 degC |
-| TEMPN_8 | 30008 | 0x07 | 0.1 degC |
+| TEMP_8 | 30008 | 0x07 | 0.1 degC |
 | R_IN_1 | 30009 | 0x08 | ohm |
 | R_IN_2 | 30010 | 0x09 | ohm |
 | R_IN_3 | 30011 | 0x0a | ohm |
@@ -47,7 +47,7 @@ Access level Read Only, Size 16 bits
 
 ### Holding registers
 
-Access level Read/Write, Size 16 bits
+Access level Read/Write, Size 16 bits. Led thershold registers.
 
 | Device function | Register Address | Modbus Address | Measurement Unit |
 | --- | --- | --- | --- |
