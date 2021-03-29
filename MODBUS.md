@@ -1,4 +1,4 @@
-[![rtd-rpi](res/sequent.jpg)](https://sequentmicrosystems.com)
+[![rtd-rpi](readmeres/sequent.jpg)](https://sequentmicrosystems.com)
 
 # Modbus
 
