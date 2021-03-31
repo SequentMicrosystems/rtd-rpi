@@ -1,6 +1,6 @@
 # node-red-contrib-sm-rtd
 
-This is the node-red node to control Sequent Microsystems [RTD Data Acquisition Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/product/rtd-data-acquisition-card-for-rpi/).
+This is the node-red node to control Sequent Microsystems [RTD Data Acquisition Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/collections/all-io-cards/products/rtd-data-acquisition-card-for-rpi).
 
 ## Install
 
