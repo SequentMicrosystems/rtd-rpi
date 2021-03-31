@@ -3,7 +3,7 @@
 # rtd-rpi
 ![rtd](readmeres/RTD1.jpg)
 
-This is the command to control [RTD Data Acquisition Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/product/rtd-data-acquisition-card-for-rpi/).
+This is the command to control [RTD Data Acquisition Stackable Card for Raspberry Pi](https://sequentmicrosystems.com/collections/all-io-cards/products/rtd-data-acquisition-card-for-rpi).
 
 First enable I2C communication:
 ```bash
