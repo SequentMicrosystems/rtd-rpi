@@ -149,6 +149,28 @@ const CliCmdType CMD_SNS_TYPE_WRITE =
 		"",
 		"\tExample:    rtd 0 stypewr 1 1; Set the type of sensor for group 1(channels 1..4) on the board #0 to PT1000\n"};
 
+int doSwitchSamplesRead(int argc, char *argv[]);
+const CliCmdType CMD_SWITCH_SAMPLES_READ =
+	{
+		"swsrd",
+		2,
+		&doSwitchSamplesRead,
+		"\tswsrd:    Display the number of sample measure on a single channel until switch to the next one\n",
+		"\tUsage:      rtd <id> swsrd\n",
+		"",
+		"\tExample:    rtd 0 swsrd; Display the number of samples on the board #0\n"};
+
+int doSwitchSamplesWrite(int argc, char *argv[]);
+const CliCmdType CMD_SWITCH_SAMPLES_WRITE =
+	{
+		"swswr",
+		2,
+		&doSwitchSamplesWrite,
+		"\tswswr:    Set the number of sample measure on a single channel until switch to the next one\n",
+		"\tUsage:      rtd <id> swswr <samples> \n",
+		"",
+		"\tExample:    rtd 0 swswr 100; Set the number of samples on the board #0 to 100\n"};
+
 char *warranty =
 	"	       Copyright (c) 2016-2021 Sequent Microsystems\n"
 		"                                                             \n"
@@ -191,6 +213,8 @@ const CliCmdType *gCmdArray[] =
 	&CMD_RS485_WRITE,
 	&CMD_SNS_TYPE_READ,
 	&CMD_SNS_TYPE_WRITE,
+	&CMD_SWITCH_SAMPLES_READ,
+	&CMD_SWITCH_SAMPLES_WRITE,
 	NULL}; //null terminated array of cli structure pointers
 
 int doBoardInit(int stack)
@@ -650,9 +674,8 @@ int doBoard(int argc, char *argv[])
 		printf("ADC: ARC = %d, SPS1 = %d, SPS2 = %d, Card Type = %d\n", reinit,
 		(int)sps[0], (int)sps[1], (int)cardType);
 #endif		
-		printf("Vin %0.3fV, Vrasp %0.3fV, CPU Temp %dC\n", vIn, vRasp, (int)saux8);
-
-
+		printf("Vin %0.3fV, Vrasp %0.3fV, CPU Temp %dC\n", vIn, vRasp,
+			(int)saux8);
 
 	}
 #ifdef DEBUG_ADS	
@@ -820,6 +843,107 @@ int doSnsTypeWrite(int argc, char *argv[])
 	else
 	{
 		printf("%s", CMD_SNS_TYPE_WRITE.usage1);
+		exit(1);
+	}
+	return OK;
+}
+
+
+int samplesRead(int dev, int* val)
+{
+	u8 buff[2];
+	u16 uVal = 0;
+
+	if (NULL == val)
+	{
+		return ERROR;
+	}
+
+	
+	if (FAIL == i2cMem8Read(dev, I2C_MEM_ADS_SAMPLE_SWITCH, buff, 2))
+	{
+		return ERROR;
+	}
+	memcpy(&uVal, buff, 2);
+	*val = uVal;
+	return OK;
+}
+
+int samplesWrite(int dev, int val)
+{
+	u8 buff[2];
+	u16 uVal = 1;
+
+	if (val < 1 || val > 10000)
+	{
+		printf("Invalid switch samples number  [1..10000]\n");
+		return ERROR;
+	}
+	uVal = (u16)val;
+	memcpy(buff, &uVal, 2);
+	
+	if (FAIL == i2cMem8Write(dev, I2C_MEM_ADS_SAMPLE_SWITCH, buff, 2))
+	{
+		return ERROR;
+	}
+
+	return OK;
+}
+
+
+int doSwitchSamplesRead(int argc, char *argv[])
+{
+	int val = 0;
+	int dev = 0;
+
+	dev = doBoardInit(atoi(argv[1]));
+	if (dev <= 0)
+	{
+		exit(1);
+	}
+	
+	if (argc == 3)
+	{
+		if (OK != samplesRead(dev, &val))
+		{
+			printf("Fail to read!\n");
+			exit(1);
+		}
+		printf("%d\n", val);
+	}
+	else
+	{
+		printf("%s", CMD_SWITCH_SAMPLES_READ.usage1);
+		exit(1);
+	}
+	return OK;
+}
+
+int doSwitchSamplesWrite(int argc, char *argv[])
+{
+	int val = 0;
+	int dev = 0;
+
+	dev = doBoardInit(atoi(argv[1]));
+	if (dev <= 0)
+	{
+		exit(1);
+	}
+
+	if (argc == 4)
+	{
+		val = atoi(argv[3]);
+
+		if (OK != samplesWrite(dev, val))
+		{
+			printf("Fail to write!\n");
+			exit(1);
+		}
+		printf("OK\n");
+	}
+	else
+	{
+		printf("%s", CMD_SWITCH_SAMPLES_WRITE.usage1);
 		exit(1);
 	}
 	return OK;
