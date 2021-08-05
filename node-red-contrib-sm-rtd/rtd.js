@@ -80,23 +80,20 @@ module.exports = function(RED) {
                 else{
                   var i = 0;
                   var value = 0;
-                  const values = [];// = [0, 0, 0, 0, 0, 0, 0, 0];
-                 
-                    node.port.readI2cBlock(hwAdd, addOffset, 32, buffer,  function(err, size, res) {
-                    if (err) { 
-                        node.error(err, msg);
-                    } 
-                    else{
-                       for(i = 0; i < 8; i++){  
-                        value = res.readFloatLE(i*4).toFixed(4);   
-                        values[i] = value;                        
-                       }
-                      //node.log(values); 
-                      msg.payload = values;
-                      node.send(msg);
-                    }
-                    });
-                 
+                  const values = [];
+                  node.port.readI2cBlock(hwAdd, addOffset, 32, buffer,  function(err, size, res) {
+                  if (err) { 
+                      node.error(err, msg);
+                  } 
+                  else{
+                     for(i = 0; i < 8; i++){  
+                       value = res.readFloatLE(i*4).toFixed(4);   
+                       values[i] = value;                        
+                     } 
+                    msg.payload = values;
+                    node.send(msg);
+                  }
+                  });                 
                 }   
             } catch(err) {
                 this.error(err,msg);
