@@ -11,7 +11,7 @@ module.exports = function(RED) {
         this.payloadType = n.payloadType;
         this.resistance = n.resistance;
         var node = this;
-        var buffer = Buffer.alloc(4);
+        var buffer = Buffer.alloc(32);
         
         node.port = I2C.openSync( 1 );
         node.on("input", function(msg) {
@@ -47,8 +47,8 @@ module.exports = function(RED) {
                 }
                 hwAdd += stack;
                 
-                if(channel < 1){
-                  channel = 1;
+                if(channel < 0){
+                  channel = 0;
                 }
                 if(channel > 8){
                   channel = 8;
@@ -61,21 +61,43 @@ module.exports = function(RED) {
                 } else {
                     myPayload = RED.util.evaluateNodeProperty(this.payload, this.payloadType, this,msg);
                 }
-				var addOffset = 0;
-				if(readRes)
-				{
-					addOffset = RTD_RES1_ADD;	
-				}
-                node.port.readI2cBlock(hwAdd, addOffset + (channel - 1)*4, 4, buffer,  function(err, size, res) {
+                var addOffset = 0;
+                if(readRes)
+                {
+                  addOffset = RTD_RES1_ADD;	
+                }
+                if(channel > 0){
+                  node.port.readI2cBlock(hwAdd, addOffset + (channel - 1)*4, 4, buffer,  function(err, size, res) {
+                  if (err) { 
+                      node.error(err, msg);
+                  } 
+                  else{
+                      msg.payload = res.readFloatLE(0).toFixed(4);                       
+                      node.send(msg);
+                  }
+                  });
+                } 
+                else{
+                  var i = 0;
+                  var value = 0;
+                  const values = [];// = [0, 0, 0, 0, 0, 0, 0, 0];
+                 
+                    node.port.readI2cBlock(hwAdd, addOffset, 32, buffer,  function(err, size, res) {
                     if (err) { 
                         node.error(err, msg);
                     } 
                     else{
-                        msg.payload = res.readFloatLE(0).toFixed(4);                       
-                        node.send(msg);
+                       for(i = 0; i < 8; i++){  
+                        value = res.readFloatLE(i*4).toFixed(4);   
+                        values[i] = value;                        
+                       }
+                      //node.log(values); 
+                      msg.payload = values;
+                      node.send(msg);
                     }
-                    });     
-                    
+                    });
+                 
+                }   
             } catch(err) {
                 this.error(err,msg);
             }
