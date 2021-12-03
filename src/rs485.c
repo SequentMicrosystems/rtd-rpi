@@ -75,7 +75,7 @@ const CliCmdType CMD_RS485_READ =
 	2,
 	&doRs485Read,
 	"\trs485rd:    Read the RS485 communication settings\n",
-	"\tUsage:		rtd <id> rs485rd\n",
+	"\tUsage:      rtd <id> rs485rd\n",
 	"",
 	"\tExample:		rtd 0 rs485rd; Read the RS485 settings on Board #0\n"};
 
@@ -121,9 +121,9 @@ const CliCmdType CMD_RS485_WRITE =
 		2,
 		&doRs485Write,
 		"\trs485wr:    Write the RS485 communication settings\n",
-		"\tUsage:		rtd <id> rs485wr <mode> <baudrate> <stopBits> <parity> <slaveAddr>\n",
+		"\tUsage:      rtd <id> rs485wr <mode> <baudrate> <stopBits> <parity> <slaveAddr>\n",
 		"",
-		"\tExample:		rtd 0 rs485wr 1 9600 1 0 1; Write the RS485 settings on Board #0 \n\t\t\t(mode = Modbus RTU; baudrate = 9600 bps; stop bits one; parity none; modbus slave address = 1)\n"};
+		"\tExample:		 rtd 0 rs485wr 1 9600 1 0 1; Write the RS485 settings on Board #0 \n\t\t\t(mode = Modbus RTU; baudrate = 9600 bps; stop bits one; parity none; modbus slave address = 1)\n"};
 
 int doRs485Write(int argc, char *argv[])
 {

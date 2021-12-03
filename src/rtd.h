@@ -108,4 +108,23 @@ typedef struct
 
 int doBoardInit(int stack);
 int rtdHwTypeGet(int dev, int* hw);
+
+//LED's
+extern const CliCmdType CMD_READ_LED_MODE;
+extern const CliCmdType CMD_WRITE_LED_MODE;
+extern const CliCmdType CMD_READ_LED_TH;
+extern const CliCmdType CMD_WRITE_LED_TH;
+
+//RS485
+extern const CliCmdType CMD_RS485_READ;
+extern const CliCmdType CMD_RS485_WRITE;
+
+//Watchdog
+extern const CliCmdType CMD_WDT_RELOAD;
+extern const CliCmdType CMD_WDT_SET_PERIOD;
+extern const CliCmdType CMD_WDT_GET_PERIOD;
+extern const CliCmdType CMD_WDT_SET_INIT_PERIOD;
+extern const CliCmdType CMD_WDT_GET_INIT_PERIOD;
+extern const CliCmdType CMD_WDT_SET_OFF_PERIOD;
+extern const CliCmdType CMD_WDT_GET_OFF_PERIOD;
 #endif //RELAY8_H_

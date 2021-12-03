@@ -57,7 +57,7 @@ const CliCmdType CMD_WDT_SET_PERIOD =
 		2,
 		&doWdtSetPeriod,
 		"\twdtpwr:     Set the watchdog period in seconds, reload command must be issue in this interval to prevent Raspberry Pi power off\n",
-		"\tUsage:	   rtd <id> wdtpwr <val> \n",
+		"\tUsage:	    rtd <id> wdtpwr <val> \n",
 		"",
 		"\tExample:	   rtd 0 wdtpwr 10; Set the watchdog timer period on Board #0 at 10 seconds \n"};
 
