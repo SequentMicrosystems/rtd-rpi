@@ -22,7 +22,7 @@
 
 #define VERSION_BASE	(int)1
 #define VERSION_MAJOR	(int)2
-#define VERSION_MINOR	(int)3
+#define VERSION_MINOR	(int)4
 
 #define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
 
@@ -203,6 +203,8 @@ const CliCmdType *gCmdArray[] =
 	&CMD_WDT_GET_INIT_PERIOD,
 	&CMD_WDT_SET_OFF_PERIOD,
 	&CMD_WDT_GET_OFF_PERIOD,
+   &CMD_WDT_GET_RESETS_COUNT,
+   &CMD_WDT_CLR_RESETS_COUNT,
 	&CMD_READ_LED_MODE,
 	&CMD_WRITE_LED_MODE,
 	&CMD_READ_LED_TH,
@@ -564,7 +566,7 @@ int doVersion(int argc, char *argv[])
 {
 	UNUSED(argc);
 	UNUSED(argv);
-	printf("rtd v%d.%d.%d Copyright (c) 2016 - 2021 Sequent Microsystems\n",
+	printf("rtd v%d.%d.%d Copyright (c) 2016 - 2022 Sequent Microsystems\n",
 	VERSION_BASE, VERSION_MAJOR, VERSION_MINOR);
 	printf("\nThis is free software with ABSOLUTELY NO WARRANTY.\n");
 	printf("For details type: rtd -warranty\n");

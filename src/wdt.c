@@ -334,3 +334,88 @@ int doWdtGetOffPeriod(int argc, char *argv[])
 	}
 	return OK;
 }
+
+int doWdtGetResetCount(int argc, char *argv[]);
+const CliCmdType CMD_WDT_GET_RESETS_COUNT =
+	{
+		"wdtrcrd",
+		2,
+		&doWdtGetResetCount,
+		"\twdtrcrd:     Get the watchdog numbers of performed repowers\n",
+		"\tUsage:	    rtd <id> wdtrcrd \n",
+		"",
+		"\tExample:	    rtd 0 wdtrcrd; Get the watchdog reset count on Board #0\n"};
+
+int doWdtGetResetCount(int argc, char *argv[])
+{
+	int dev = 0;
+	u16 period;
+	u8 buff[2] =
+	{
+		0,
+		0};
+
+	dev = doBoardInit(atoi(argv[1]));
+	if (dev <= 0)
+	{
+		return ERROR;
+	}
+
+	if (argc == 3)
+	{
+		if (OK != i2cMem8Read(dev, I2C_MEM_WDT_RESET_COUNT_ADD, buff, 2))
+		{
+			printf("Fail to read watchdog reset count!\n");
+			return ERROR;
+		}
+		memcpy(&period, buff, 2);
+		printf("%d\n", (int)period);
+	}
+	else
+	{
+		return ARG_CNT_ERR;
+	}
+	return OK;
+}
+
+
+int doWdtClearResets(int argc, char *argv[]);
+const CliCmdType CMD_WDT_CLR_RESETS_COUNT =
+	{
+		"wdtrcclr",
+		2,
+		&doWdtClearResets,
+		"\twdtrcclr:    Clear the resets counter\n",
+		"\tUsage:	    rtd <id> wdtrcclr\n",
+		"",
+		"\tExample:	    rtd 0 wdtrcclr -> Clear the watchdog resets count on Board #0\n"};
+
+int doWdtClearResets(int argc, char *argv[])
+{
+	int dev = 0;
+	u8 buff[2] =
+	{
+		0,
+		0};
+
+	dev = doBoardInit(atoi(argv[1]));
+	if (dev <= 0)
+	{
+		return ERROR;
+	}
+
+	if (argc == 3)
+	{
+		buff[0] = WDT_RESET_COUNT_SIGNATURE;
+		if (OK != i2cMem8Write(dev, I2C_MEM_WDT_CLEAR_RESET_COUNT_ADD, buff, 1))
+		{
+			printf("Fail to clear the reset count!\n");
+			return ERROR;
+		}
+	}
+	else
+	{
+		return ARG_CNT_ERR;
+	}
+	return OK;
+}

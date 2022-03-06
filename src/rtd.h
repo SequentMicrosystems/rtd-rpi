@@ -9,6 +9,7 @@
 #define RESET_CALIBRATION_KEY	0x55 
 #define WDT_RESET_SIGNATURE 	0xCA
 #define WDT_MAX_OFF_INTERVAL_S 4147200 //48 days
+#define WDT_RESET_COUNT_SIGNATURE	0xBE
 
 enum
 {
@@ -127,4 +128,7 @@ extern const CliCmdType CMD_WDT_SET_INIT_PERIOD;
 extern const CliCmdType CMD_WDT_GET_INIT_PERIOD;
 extern const CliCmdType CMD_WDT_SET_OFF_PERIOD;
 extern const CliCmdType CMD_WDT_GET_OFF_PERIOD;
+extern const CliCmdType CMD_WDT_GET_RESETS_COUNT;
+extern const CliCmdType CMD_WDT_CLR_RESETS_COUNT;
+
 #endif //RELAY8_H_
