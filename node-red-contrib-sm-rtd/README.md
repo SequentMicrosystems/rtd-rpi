@@ -12,7 +12,7 @@ In your node-red user directory, tipicaly ~/.node-red,
 ~$ cd ~/.node-red
 ```
 
-Run the fallowing command:
+Run the following command:
 
 ```bash
 ~/.node-red$ npm install ~/rtd-rpi/node-red-contrib-sm-rtd
