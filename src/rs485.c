@@ -6,43 +6,52 @@
 #include "rs485.h"
 #include "comm.h"
 
-
 int rs485Set(int dev, u8 mode, u32 baud, u8 stopB, u8 parity, u8 add)
 {
 	ModbusSetingsType settings;
 	u8 buff[5];
 
-	if (baud > 921600 || baud < 1200)
-	{
-		printf("Invalid RS485 Baudrate [1200, 921600]!\n");
-		return ERROR;
-	}
 	if (mode > 1)
 	{
 		printf("Invalid RS485 mode : 0 = disable, 1= Modbus RTU (Slave)!\n");
 		return ERROR;
 	}
-	if (stopB < 1 || stopB > 2)
+	if (mode == 0) //default settings for modbus disable option
 	{
-		printf("Invalid RS485 stop bits [1, 2]!\n");
-		return ERROR;
+		settings.mbBaud = 9600;
+		settings.mbType = mode;
+		settings.mbParity = 0;
+		settings.mbStopB = 1;
+		settings.add = 1;
 	}
-	if (parity > 2)
+	else
 	{
-		printf("Invalid RS485 parity 0 = none; 1 = even; 2 = odd! \n");
-		return ERROR;
+		if (baud > 921600 || baud < 1200)
+		{
+			printf("Invalid RS485 Baudrate [1200, 921600]!\n");
+			return ERROR;
+		}
+		if (stopB < 1 || stopB > 2)
+		{
+			printf("Invalid RS485 stop bits [1, 2]!\n");
+			return ERROR;
+		}
+		if (parity > 2)
+		{
+			printf("Invalid RS485 parity 0 = none; 1 = even; 2 = odd! \n");
+			return ERROR;
+		}
+		if (add < 1)
+		{
+			printf("Invalid MODBUS device address: [1, 255]!\n");
+			return ERROR;
+		}
+		settings.mbBaud = baud;
+		settings.mbType = mode;
+		settings.mbParity = parity;
+		settings.mbStopB = stopB;
+		settings.add = add;
 	}
-	if (add < 1)
-	{
-		printf("Invalid MODBUS device address: [1, 255]!\n");
-		return ERROR;
-	}
-	settings.mbBaud = baud;
-	settings.mbType = mode;
-	settings.mbParity = parity;
-	settings.mbStopB = stopB;
-	settings.add = add;
-
 	memcpy(buff, &settings, sizeof(ModbusSetingsType));
 	if (OK != i2cMem8Write(dev, I2C_MODBUS_SETINGS_ADD, buff, 5))
 	{
@@ -70,32 +79,27 @@ int rs485Get(int dev)
 }
 
 int doRs485Read(int argc, char *argv[]);
-const CliCmdType CMD_RS485_READ =
-{
-	"rs485rd",
-	2,
-	&doRs485Read,
+const CliCmdType CMD_RS485_READ = {"rs485rd", 2, &doRs485Read,
 	"\trs485rd:    Read the RS485 communication settings\n",
-	"\tUsage:      rtd <id> rs485rd\n",
-	"",
+	"\tUsage:      rtd <id> rs485rd\n", "",
 	"\tExample:		rtd 0 rs485rd; Read the RS485 settings on Board #0\n"};
 
 int doRs485Read(int argc, char *argv[])
 {
 	int dev = 0;
 	int card = 0;
-	
+
 	dev = doBoardInit(atoi(argv[1]));
 	if (dev <= 0)
 	{
 		exit(1);
 	}
-	if(OK !=rtdHwTypeGet(dev, &card))
+	if (OK != rtdHwTypeGet(dev, &card))
 	{
 		printf("Fail to read card type!\n");
 		exit(1);
 	}
-	if(card < 1)
+	if (card < 1)
 	{
 		printf("Available only for hardware version >= 5.0!\n");
 		exit(1);
@@ -117,10 +121,7 @@ int doRs485Read(int argc, char *argv[])
 
 int doRs485Write(int argc, char *argv[]);
 const CliCmdType CMD_RS485_WRITE =
-	{
-		"rs485wr",
-		2,
-		&doRs485Write,
+	{"rs485wr", 2, &doRs485Write,
 		"\trs485wr:    Write the RS485 communication settings\n",
 		"\tUsage:      rtd <id> rs485wr <mode> <baudrate> <stopBits> <parity> <slaveAddr>\n",
 		"",
@@ -141,12 +142,12 @@ int doRs485Write(int argc, char *argv[])
 	{
 		exit(1);
 	}
-	if(OK !=rtdHwTypeGet(dev, &card))
+	if (OK != rtdHwTypeGet(dev, &card))
 	{
 		printf("Fail to read card type!\n");
 		exit(1);
 	}
-	if(card < 1)
+	if (card < 1)
 	{
 		printf("Available only for hardware version >= 5.0!\n");
 		exit(1);
