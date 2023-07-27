@@ -35,6 +35,7 @@ int rs485Set(int dev, u8 mode, u32 baud, u8 stopB, u8 parity, u8 add)
 	if (add < 1)
 	{
 		printf("Invalid MODBUS device address: [1, 255]!\n");
+		return ERROR;
 	}
 	settings.mbBaud = baud;
 	settings.mbType = mode;
