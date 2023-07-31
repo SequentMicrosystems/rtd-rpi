@@ -65,4 +65,18 @@ return tempetature in deg Celsius.
 
 return sensor resistance in ohms.
 
+### get_poly5(stack: int, channel: int)
 
+Convert RTD reading to Temperature, using 5th order polynomial fit of Temperature as a function of Resistance.
+This fit provides much-improved accuracy through the temperature range of [-200C, 660C], particularly near the high
+and low ranges, compared to the default linear fitting function baked into the Sequent RTD Data Acquisition
+Stackable Card for Raspberry Pi.  The coefficients for this fit were developed in a project documented
+in https://github.com/ewjax/max31865
+```
+        temp_C = (c5 * res^5) + (c4 * res^4) + (c3 * res^3) + (c2 * res^2) + (c1 * res) + c0
+```
+ - param stack: 0-7, which hat to read
+ - param channel: 1-8, which RTD to read on indicated hat
+ - return: temperature, in Celcius
+
+Tanks to [ewjax](https://github.com/ewjax) for the polynomial fit contribution
