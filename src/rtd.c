@@ -23,6 +23,8 @@
 #define VERSION_BASE	(int)1
 #define VERSION_MAJOR	(int)2
 #define VERSION_MINOR	(int)5
+/* #define VERSION_DEV     "" */
+#define VERSION_DEV     "-Dev3"
 
 #define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
 
@@ -92,7 +94,18 @@ const CliCmdType CMD_READ_R =
 		"\treadres:    Read rtd channel resistance\n",
 		"\tUsage:      rtd <id> readres <channel>\n",
 		"",
-		"\tExample:    rtd 0 read 2; Read the resistance on channel #2 on Board #0\n"};
+		"\tExample:    rtd 0 readres 2; Read the resistance on channel #2 on Board #0\n"};
+
+int doRtdReadPoly5(int argc, char *argv[]);
+const CliCmdType CMD_READ_POLY5 =
+	{
+		"readpoly5",
+		2,
+		&doRtdReadPoly5,
+		"\treadpoly5:  Read rtd channel temperature, using 5th order polynomial resistance-to-temperature fit\n",
+		"\tUsage:      rtd <id> readpoly5 <channel>\n",
+		"",
+		"\tExample:    rtd 0 readpoly5 2; Read the temperature on channel #2 on Board #0\n"};
 
 int doRtdCalib(int argc, char *argv[]);
 const CliCmdType CMD_CALIB =
@@ -195,6 +208,7 @@ const CliCmdType *gCmdArray[] =
 	&CMD_VERSION,
 	&CMD_READ,
 	&CMD_READ_R,
+	&CMD_READ_POLY5,
 	&CMD_BOARD,
 	&CMD_WDT_RELOAD,
 	&CMD_WDT_SET_PERIOD,
@@ -398,6 +412,79 @@ int doRtdReadR(int argc, char *argv[])
 	return OK;
 }
 
+/*
+ * doRtdReadPoly5:
+ *  Read temperature on one channel, using a 5th order polynomial fit
+ *  of resistance to temperature
+ ******************************************************************************************
+ */
+int doRtdReadPoly5(int argc, char *argv[])
+{
+	int ch = 0;
+	float res = 0.0;
+    float temp_C = 0.0;
+	int dev = 0;
+
+    /* coeffs for 5th order fit */
+    float c5 = -2.10678E-11;
+    float c4 = 2.27311E-08;
+    float c3 = -8.20888E-06;
+    float c2 = 2.38589E-03;
+    float c1 = 2.24745E+00;
+    float c0 = -2.42522E+02;
+
+	dev = doBoardInit(atoi(argv[1]));
+	if (dev <= 0)
+	{
+		exit(1);
+	}
+
+	if (argc == 4)
+	{
+		ch = atoi(argv[3]);
+		if ( (ch < CHANNEL_NR_MIN) || (ch > RTD_CH_NR_MAX))
+		{
+			printf("RTD channel number value out of range!\n");
+			exit(1);
+		}
+
+        /* get the resistance */
+		if (OK != rtdChGetR(dev, ch, &res))
+		{
+			printf("Fail to read!\n");
+			exit(1);
+		}
+
+        /* 
+         * perform the resistance-to-temperature fit using 5th order polynomial
+         *  
+         * Rearrange a bit to make it friendlier (less expensive) to calculate
+         *    temp_C = res ( res ( res ( res ( res * c5 + c4) + c3) + c2) + c1) + c0
+         */
+        temp_C = res * c5 + c4;
+
+        temp_C *= res;
+        temp_C += c3;
+
+        temp_C *= res;
+        temp_C += c2;
+
+        temp_C *= res;
+        temp_C += c1;
+
+        temp_C *= res;
+        temp_C += c0;
+
+		printf("%06f\n", temp_C);
+	}
+	else
+	{
+		printf("Usage: %s read temperature value\n", argv[0]);
+		exit(1);
+	}
+	return OK;
+}
+
 int doHelp(int argc, char *argv[])
 {
 	int i = 0;
@@ -566,8 +653,8 @@ int doVersion(int argc, char *argv[])
 {
 	UNUSED(argc);
 	UNUSED(argv);
-	printf("rtd v%d.%d.%d Copyright (c) 2016 - 2022 Sequent Microsystems\n",
-	VERSION_BASE, VERSION_MAJOR, VERSION_MINOR);
+	printf("rtd v%d.%d.%d%s Copyright (c) 2016 - 2023 Sequent Microsystems\n",
+	VERSION_BASE, VERSION_MAJOR, VERSION_MINOR, VERSION_DEV);
 	printf("\nThis is free software with ABSOLUTELY NO WARRANTY.\n");
 	printf("For details type: rtd -warranty\n");
 	return OK;
