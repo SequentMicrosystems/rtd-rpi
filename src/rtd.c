@@ -414,8 +414,15 @@ int doRtdReadR(int argc, char *argv[])
 
 /*
  * doRtdReadPoly5:
- *  Read temperature on one channel, using a 5th order polynomial fit
- *  of resistance to temperature
+ *
+ *  Read RTD resistance and convert it to Temperature, using 5th order polynomial fit of Temperature as a function of Resistance.
+ *  This fit provides much improved accuracy through the temperature range of [-200C, 660C], particularly near the high
+ *  and low ranges, compared to the default linear fitting function baked into the Sequent RTD Data Acquisition
+ *  Stackable Card for Raspberry Pi.  The coefficients for this fit were developed in a project documented
+ *  in https://github.com/ewjax/max31865
+ *
+ *      temp_C = (c5 * res^5) + (c4 * res^4) + (c3 * res^3) + (c2 * res^2) + (c1 * res) + c0
+ * 
  ******************************************************************************************
  */
 int doRtdReadPoly5(int argc, char *argv[])
