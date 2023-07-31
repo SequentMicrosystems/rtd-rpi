@@ -21,10 +21,10 @@
 #include "rs485.h"
 
 #define VERSION_BASE	(int)1
-#define VERSION_MAJOR	(int)2
-#define VERSION_MINOR	(int)5
-/* #define VERSION_DEV     "" */
-#define VERSION_DEV     "-Dev3"
+#define VERSION_MAJOR	(int)3
+#define VERSION_MINOR	(int)0
+/* #define VERSION_DEV     "-Dev1" */
+#define VERSION_DEV     ""
 
 #define UNUSED(X) (void)X      /* To avoid gcc/g++ warnings */
 
@@ -217,8 +217,8 @@ const CliCmdType *gCmdArray[] =
 	&CMD_WDT_GET_INIT_PERIOD,
 	&CMD_WDT_SET_OFF_PERIOD,
 	&CMD_WDT_GET_OFF_PERIOD,
-   &CMD_WDT_GET_RESETS_COUNT,
-   &CMD_WDT_CLR_RESETS_COUNT,
+	&CMD_WDT_GET_RESETS_COUNT,
+	&CMD_WDT_CLR_RESETS_COUNT,
 	&CMD_READ_LED_MODE,
 	&CMD_WRITE_LED_MODE,
 	&CMD_READ_LED_TH,
@@ -429,16 +429,16 @@ int doRtdReadPoly5(int argc, char *argv[])
 {
 	int ch = 0;
 	float res = 0.0;
-    float temp_C = 0.0;
+	float temp_C = 0.0;
 	int dev = 0;
 
-    /* coeffs for 5th order fit */
-    float c5 = -2.10678E-11;
-    float c4 = 2.27311E-08;
-    float c3 = -8.20888E-06;
-    float c2 = 2.38589E-03;
-    float c1 = 2.24745E+00;
-    float c0 = -2.42522E+02;
+	/* coeffs for 5th order fit */
+	float c5 = -2.10678E-11;
+	float c4 = 2.27311E-08;
+	float c3 = -8.20888E-06;
+	float c2 = 2.38589E-03;
+	float c1 = 2.24745E+00;
+	float c0 = -2.42522E+02;
 
 	dev = doBoardInit(atoi(argv[1]));
 	if (dev <= 0)
@@ -455,32 +455,32 @@ int doRtdReadPoly5(int argc, char *argv[])
 			exit(1);
 		}
 
-        /* get the resistance */
+		/* get the resistance */
 		if (OK != rtdChGetR(dev, ch, &res))
 		{
 			printf("Fail to read!\n");
 			exit(1);
 		}
 
-        /* 
-         * perform the resistance-to-temperature fit using 5th order polynomial
-         *  
-         * Rearrange a bit to make it friendlier (less expensive) to calculate
-         *    temp_C = res ( res ( res ( res ( res * c5 + c4) + c3) + c2) + c1) + c0
-         */
-        temp_C = res * c5 + c4;
+		/* 
+		 * perform the resistance-to-temperature fit using 5th order polynomial
+		 *  
+		 * Rearrange a bit to make it friendlier (less expensive) to calculate
+		 *    temp_C = res ( res ( res ( res ( res * c5 + c4) + c3) + c2) + c1) + c0
+		 */
+		temp_C = res * c5 + c4;
 
-        temp_C *= res;
-        temp_C += c3;
+		temp_C *= res;
+		temp_C += c3;
 
-        temp_C *= res;
-        temp_C += c2;
+		temp_C *= res;
+		temp_C += c2;
 
-        temp_C *= res;
-        temp_C += c1;
+		temp_C *= res;
+		temp_C += c1;
 
-        temp_C *= res;
-        temp_C += c0;
+		temp_C *= res;
+		temp_C += c0;
 
 		printf("%06f\n", temp_C);
 	}
