@@ -8,6 +8,7 @@ setuptools.setup(
     version="1.1.0",
     author="Sequent Microsystems",
     author_email="olcitu@gmail.com",
+    zip_safe=True,
     description="A set of functions to control Sequent Microsystems MEGA_RTD board",
 	license='MIT',
     url="https://www.sequentmicrosystems.com",
