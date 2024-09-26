@@ -6,6 +6,11 @@ setuptools.setup(
     version='1.0.1',
     license='MIT',
     description='Library to control Sequent Microsystems rtd Card',
+    long_description="""\
+Python module for the RTD Data Acquasition Stackable HAT for RPI
+
+Product page: https://sequentmicrosystems.com/products/rtd-data-acquisition-card-for-rpi
+""",
     author='Sequent Microsystems',
     author_email='olcitu@gmail.com',
     url='https://sequentmicrosystems.com',
