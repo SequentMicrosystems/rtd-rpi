@@ -22,7 +22,7 @@
 
 #define VERSION_BASE	(int)1
 #define VERSION_MAJOR	(int)3
-#define VERSION_MINOR	(int)0
+#define VERSION_MINOR	(int)1
 /* #define VERSION_DEV     "-Dev1" */
 #define VERSION_DEV     ""
 
@@ -146,10 +146,10 @@ const CliCmdType CMD_SNS_TYPE_READ =
 		"styperd",
 		2,
 		&doSnsTypeRead,
-		"\tstyperd:    Display sensor type(0: PT100, 1:PT1000) per group of channels(1: ch[1..4], 2:ch[5..8] \n",
-		"\tUsage:      rtd <id> styperd <group>\n",
+		"\tstyperd:    Display sensor type(0: PT100, 1:PT1000) global settings for all channels \n",
+		"\tUsage:      rtd <id> styperd\n",
 		"",
-		"\tExample:    rtd 0 styperd 1; Display the type of sensor for group 1 (channels 1..4) on the board #0\n"};
+		"\tExample:    rtd 0 styperd; Display the type of sensor for all channels on the board #0\n"};
 
 int doSnsTypeWrite(int argc, char *argv[]);
 const CliCmdType CMD_SNS_TYPE_WRITE =
@@ -157,10 +157,10 @@ const CliCmdType CMD_SNS_TYPE_WRITE =
 		"stypewr",
 		2,
 		&doSnsTypeWrite,
-		"\tstypewr:    Set sensor type(0: PT100, 1:PT1000) per group of channels(1: ch[1..4], 2:ch[5..8] \n",
-		"\tUsage:      rtd <id> stypewr <group> <type> \n",
+		"\tstypewr:    Set sensor type(0: PT100, 1:PT1000) global settings for all channels \n",
+		"\tUsage:      rtd <id> stypewr <type> \n",
 		"",
-		"\tExample:    rtd 0 stypewr 1 1; Set the type of sensor for group 1(channels 1..4) on the board #0 to PT1000\n"};
+		"\tExample:    rtd 0 stypewr 1; Set the type of sensor for all channels on the board #0 to PT1000\n"};
 
 int doSwitchSamplesRead(int argc, char *argv[]);
 const CliCmdType CMD_SWITCH_SAMPLES_READ =
@@ -801,7 +801,7 @@ int doWarranty(int argc UNU, char *argv[] UNU)
 	return OK;
 }
 
-int sensorRead(int dev, int group, int* val)
+int sensorRead(int dev, int* val)
 {
 	u8 buff;
 
@@ -810,22 +810,16 @@ int sensorRead(int dev, int group, int* val)
 		return ERROR;
 	}
 
-	if ( (group < CHANNEL_NR_MIN) || (group > 2))
-	{
-		printf("Invalid rtd group of channels!\n");
-		return ERROR;
-	}
-
-	if (FAIL == i2cMem8Read(dev, I2C_SENSORS_TYPE, &buff, 1))
+	if (FAIL == i2cMem8Read(dev, I2C_MEM_PT1000, &buff, 1))
 	{
 		return ERROR;
 	}
 
-	*val = 0x0f & (buff >> (4 * (group - 1)));
+	*val = 0x0f & buff;
 	return OK;
 }
 
-int sensorWrite(int dev, int group, int val)
+int sensorWrite(int dev, int val)
 {
 	u8 buff;
 
@@ -834,26 +828,9 @@ int sensorWrite(int dev, int group, int val)
 		printf("Invalid sensor type! Use 0/1 : PT100/PT1000\n");
 		return ERROR;
 	}
+	buff = 0x0f & val;
 
-	if ( (group < CHANNEL_NR_MIN) || (group > 2))
-	{
-		printf("Invalid rtd group of channels!\n");
-		return ERROR;
-	}
-
-	if (FAIL == i2cMem8Read(dev, I2C_SENSORS_TYPE, &buff, 1))
-	{
-		return ERROR;
-	}
-	if (val != 0)
-	{
-		buff |= 1 << (4 * (group - 1));
-	}
-	else
-	{
-		buff &= 0xff & (~ (1 << (4 * (group - 1))));
-	}
-	if (FAIL == i2cMem8Write(dev, I2C_SENSORS_TYPE, &buff, 1))
+	if (FAIL == i2cMem8Write(dev, I2C_MEM_PT1000, &buff, 1))
 	{
 		return ERROR;
 	}
@@ -863,7 +840,6 @@ int sensorWrite(int dev, int group, int val)
 
 int doSnsTypeRead(int argc, char *argv[])
 {
-	int ch = 0;
 	int val = 0;
 	int dev = 0;
 	int card = 0;
@@ -884,10 +860,9 @@ int doSnsTypeRead(int argc, char *argv[])
 		exit(1);
 	}
 
-	if (argc == 4)
+	if (argc == 3)
 	{
-		ch = atoi(argv[3]);
-		if (OK != sensorRead(dev, ch, &val))
+		if (OK != sensorRead(dev, &val))
 		{
 			printf("Fail to read!\n");
 			exit(1);
@@ -904,7 +879,6 @@ int doSnsTypeRead(int argc, char *argv[])
 
 int doSnsTypeWrite(int argc, char *argv[])
 {
-	int ch = 0;
 	int val = 0;
 	int dev = 0;
 	int card = 0;
@@ -924,12 +898,12 @@ int doSnsTypeWrite(int argc, char *argv[])
 		printf("Available only for hardware version >= 5.0!\n");
 		exit(1);
 	}
-	if (argc == 5)
+	if (argc == 4)
 	{
-		ch = atoi(argv[3]);
-		val = atoi(argv[4]);
+		
+		val = atoi(argv[3]);
 
-		if (OK != sensorWrite(dev, ch, val))
+		if (OK != sensorWrite(dev, val))
 		{
 			printf("Fail to write!\n");
 			exit(1);

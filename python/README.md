@@ -56,41 +56,5 @@ in https://github.com/ewjax/max31865
  - return: temperature, in Celcius
 
 Tanks to [ewjax](https://github.com/ewjax) for the polynomial fit contribution
-# librtd
-
-This is the python library to control the [rtd](https://sequentmicrosystems.com/index.php?route=product/product&path=33&product_id=66) 4/8 Channel RTD Data Acquisition for Raspberry Pi.
-
-## Install
-
-```bash
-sudo pip install SMrtd
-```
-
-## Usage
-
-Now you can import the megaio library and use its functions. To test, read relays status from the board with stack level 0:
-
-```bash
-~$ python
-Python 2.7.9 (default, Sep 17 2016, 20:26:04)
-[GCC 4.9.2] on linux2
-Type "help", "copyright", "credits" or "license" for more information.
->>> import librtd
->>> librtd.get(0, 1)
-26.654391
->>>
-```
-
-## Functions
-
-
-### get(stack, channel)
-Get one rtd temperature.
-
-stack - stack level of the MEGA-RTD card (selectable from address jumpers [0..7])
-
-channel - channel number (id) [1..8]
-
-return tempetature in deg Celsius
 
 

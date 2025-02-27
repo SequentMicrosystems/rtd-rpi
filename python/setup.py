@@ -1,11 +1,16 @@
 import setuptools
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setuptools.setup(
     name='smrtd',
     packages=setuptools.find_packages(),
-    version='1.0.2',
+    version='1.0.3',
     license='MIT',
     description='Library to control Sequent Microsystems rtd Card',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Sequent Microsystems',
     author_email='olcitu@gmail.com',
     url='https://sequentmicrosystems.com',
