@@ -55,4 +55,4 @@ dkms.conf
 
 /python/build/
 /python/dist/
-/python/SMrtd.egg-info/
+/python/*.egg-info/

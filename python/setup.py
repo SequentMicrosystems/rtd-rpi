@@ -1,9 +1,9 @@
 import setuptools
 
 setuptools.setup(
-    name='SMrtd',
+    name='smrtd',
     packages=setuptools.find_packages(),
-    version='1.0.1',
+    version='1.0.2',
     license='MIT',
     description='Library to control Sequent Microsystems rtd Card',
     author='Sequent Microsystems',
