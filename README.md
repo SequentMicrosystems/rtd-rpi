@@ -7,28 +7,28 @@ This is the command to control [RTD Data Acquisition Stackable Card for Raspberr
 
 First enable I2C communication:
 ```bash
-~$ sudo raspi-config
+sudo raspi-config
 ```
 
 ## Usage
 
 ```bash
-~$ git clone https://github.com/SequentMicrosystems/rtd-rpi.git
-~$ cd rtd-rpi/
-~/rtd-rpi$ sudo make install
+git clone https://github.com/SequentMicrosystems/rtd-rpi.git
+cd rtd-rpi/
+sudo make install
 ```
 
 Now you can access all the functions of the relays board through the command "rtd". Use -h option for help:
 ```bash
-~$ rtd -h
+rtd -h
 ```
 
 If you clone the repository any update can be made with the following commands:
 
 ```bash
-~$ cd rtd-rpi/  
-~/rtd-rpi$ git pull
-~/rtd-rpi$ sudo make install
+cd rtd-rpi/  
+git pull
+sudo make install
 ```  
 
 Python library availble [here](https://github.com/SequentMicrosystems/rtd-rpi/tree/master/python).
